@@ -12,7 +12,7 @@ class LocalhostUrlManagerTest {
         val queries = mapOf("param1" to "value1", "param2" to "value2")
         val fragment: String? = null
 
-        val result = urlManager.createNew(paths, queries, fragment, null)
+        val result = urlManager.create(paths, queries, fragment, null)
 
         assertEquals("http://localhost/api/v1/resource?param1=value1&param2=value2", result)
     }
@@ -23,7 +23,7 @@ class LocalhostUrlManagerTest {
         val queries = mapOf("param1" to "value1", "param2" to "value2")
         val fragment = "section1"
 
-        val result = urlManager.createNew(paths, queries, fragment, null)
+        val result = urlManager.create(paths, queries, fragment, null)
 
         assertEquals("http://localhost/api/v1/resource?param1=value1&param2=value2#section1", result)
     }
@@ -52,7 +52,7 @@ class LocalhostUrlManagerTest {
         val queries = mapOf<String, String>()
         val fragment: String? = null
 
-        val result = urlManager.createNew(paths, queries, fragment, null)
+        val result = urlManager.create(paths, queries, fragment, null)
 
         assertEquals("http://localhost/?", result)
     }

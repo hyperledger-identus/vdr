@@ -2,8 +2,20 @@ package interfaces
 
 import java.security.PublicKey
 
+/**
+ * The URLManager interface is responsible for constructing and resolving URLs.
+ * The URLs can represent various types such as DIDs or common web URLs.
+ */
 interface URLManager {
 
+    /**
+     * Data class representing a parsed URL.
+     *
+     * @property paths An array of strings representing the path segments.
+     * @property queries A map of query parameters.
+     * @property fragment An optional fragment from the URL.
+     * @property publicKeys An optional array of public keys.
+     */
     data class URL(
         val paths: Array<String>,
         val queries: Map<String, String>,
@@ -36,14 +48,40 @@ interface URLManager {
         }
     }
 
+    /**
+     * The type of URL manager (e.g., "Localhost", "DID", etc.).
+     */
     val type: String
 
-    fun createNew(
+    /**
+     * Creates a new URL based on the provided components.
+     *
+     * @param paths An array representing the path segments.
+     * @param queries A map of query parameters.
+     * @param fragment An optional URL fragment.
+     * @param publicKeys An optional array of public keys.
+     * @return A [String] representing the constructed URL.
+     */
+    fun create(
         paths: Array<String>,
         queries: Map<String, String>,
         fragment: String?,
         publicKeys: Array<PublicKey>?
     ): String
 
+    /**
+     * Resolves (parses) the given URL string into its components.
+     *
+     * @param url The URL string to be resolved.
+     * @return A [URL] data object containing the parsed path, query, fragment, and public keys.
+     */
     fun resolve(url: String): URL
+
+    /**
+     * Can resolve (parses) the given URL string into its components.
+     *
+     * @param url The URL string to be resolved.
+     * @return A [Boolean] indicating that this url manager can resolve the url.
+     */
+    fun canResolve(url: String): Boolean
 }

@@ -20,7 +20,7 @@ class VDRProxyMultiDriversTest {
         urlManager = LocalhostUrlManager()
         driver1 = InMemoryDriver(
             identifier = "driver1",
-            type = "typeA",
+            type = "cardano",
             version = "1.0",
             supportedVersions = arrayOf("1.0", "1.1")
         )
@@ -43,7 +43,7 @@ class VDRProxyMultiDriversTest {
         vdrProxy.drivers = arrayOf()
 
         val exception = assertThrows<VDRProxyMultiDrivers.NoDriversException> {
-            vdrProxy.store("test data".toByteArray(), emptyMap())
+            vdrProxy.create("test data".toByteArray(), emptyMap())
         }
 
         assertEquals("The VDR does not have any driver associated", exception.message)
@@ -53,7 +53,7 @@ class VDRProxyMultiDriversTest {
     fun `store should store data using single driver and return correct URL`() {
         val driver = InMemoryDriver(
             identifier = "driver1",
-            type = "typeA",
+            type = "cardano",
             version = "1.0",
             supportedVersions = arrayOf("1.0", "1.1")
         )
@@ -65,7 +65,7 @@ class VDRProxyMultiDriversTest {
         )
 
         val data = "Sample Data".toByteArray()
-        val resultUrl = vdrProxyTest.store(data, emptyMap())
+        val resultUrl = vdrProxyTest.create(data, emptyMap())
 
         val storedUuid = resultUrl.split("?")[1].split("&").find { it.startsWith("dvrId=") }?.split("=")?.get(1)
         assertNotNull(storedUuid)
@@ -77,7 +77,7 @@ class VDRProxyMultiDriversTest {
         vdrProxy.drivers = arrayOf()
 
         val exception = assertThrows<VDRProxyMultiDrivers.NoDriversException> {
-            vdrProxy.get("http://localhost/test/path")
+            vdrProxy.read("http://localhost/test/path")
         }
 
         assertEquals("The VDR does not have any driver associated", exception.message)
@@ -90,7 +90,7 @@ class VDRProxyMultiDriversTest {
         driver1.storage[uuid] = data
 
         val url = "http://localhost/path?dvrId=driver1#${uuid}"
-        val result = vdrProxy.get(url)
+        val result = vdrProxy.read(url)
 
         assertArrayEquals(data, result)
     }
@@ -102,7 +102,7 @@ class VDRProxyMultiDriversTest {
         driver1.storage[uuid] = data
 
         val url = "http://localhost/path?dvrId=driver1#${uuid}"
-        vdrProxy.remove(url, emptyMap())
+        vdrProxy.delete(url, emptyMap())
 
         assertFalse(driver1.storage.containsKey(uuid))
     }
@@ -112,7 +112,7 @@ class VDRProxyMultiDriversTest {
         vdrProxy.drivers = arrayOf()
 
         val exception = assertThrows<VDRProxyMultiDrivers.NoDriversException> {
-            vdrProxy.remove("http://localhost/path", emptyMap())
+            vdrProxy.delete("http://localhost/path", emptyMap())
         }
 
         assertEquals("The VDR does not have any driver associated", exception.message)
