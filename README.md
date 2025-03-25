@@ -64,7 +64,7 @@ Through its modular architecture, the system can adapt to different technologies
 
 Key components include:
 
-- **VDR Proxy**: The entry point that mediates client requests and delegates operations.
+- **VDR Interface**: The entry point that mediates client requests and delegates operations.
 - **Drivers**: Plugins that implement the actual data storage and retrieval logic.
 - **URL Managers**: Modules that construct and resolve URLs carrying essential metadata.
 
@@ -113,13 +113,13 @@ graph LR
     C["Holder\n(Acquires & stores data)"]
     D["Verifier\n(Retrieves & validates data)"]
 
-    A -->|Publishes data via VDR Proxy| B
+    A -->|Publishes data via VDR Interface| B
     B -->|Provides verifiable URL| C
     B -->|Provides verifiable URL and cryptographic proof| D
     D -->|Uses embedded metadata hash and signature for verification| B
 ```
 This diagram illustrates the core relationships among the actors within the VDR system.
-The **Issuer** generates and publishes data along with the required metadata—attaching either a cryptographic hash for immutable data or a digital signature for mutable data—via the VDR Proxy.
+The **Issuer** generates and publishes data along with the required metadata—attaching either a cryptographic hash for immutable data or a digital signature for mutable data—via the VDR Interface.
 The **VDR System** then stores this data and issues verifiable URLs that encapsulate the necessary metadata and proofs.
 **Holders** retrieve these URLs to acquire and store the data for personal records, while **Verifiers** use the provided URLs and embedded cryptographic proofs to independently validate the data's integrity and authenticity.
 This architecture fosters a trustless environment where data integrity is maintained through robust, decentralized verification.
@@ -184,13 +184,13 @@ The VDR system is composed of several core components that work together to perf
 
 ## 6.1 Component Responsibilities
 
-### 6.1.1 VDR Proxy (VDR Interface)
+### 6.1.1 VDR Interface
 
-The VDR Proxy serves as the central coordinator of the entire system.
+The VDR Interface serves as the central coordinator of the entire system.
 It is the primary entry point for client requests and is responsible for orchestrating the flow of data through the system.
-When a client submits a request—whether to create, update, read, delete, or verify data—the VDR Proxy first validates the incoming metadata and ensures that all necessary parameters are present.
+When a client submits a request—whether to create, update, read, delete, or verify data—the VDR Interface first validates the incoming metadata and ensures that all necessary parameters are present.
 This component then selects the appropriate Driver based on the URL query parameters or metadata provided by the client.
-Overall, the VDR Proxy plays a pivotal role in maintaining the integrity of the data flow by ensuring that each request is directed to the correct component for further processing.
+Overall, the VDR Interface plays a pivotal role in maintaining the integrity of the data flow by ensuring that each request is directed to the correct component for further processing.
 
 - Acts as the central coordinator for all data operations.
 - Receives client requests and delegates the tasks to appropriate Drivers and URL Managers.
@@ -200,7 +200,7 @@ Overall, the VDR Proxy plays a pivotal role in maintaining the integrity of the 
 
 The Driver Interface is at the heart of the actual data operations within the VDR system.
 Drivers are the pluggable components that implement the storage mechanisms, which could range from traditional databases to blockchain-based systems or in-memory storage solutions.
-When a client request is delegated by the VDR Proxy, the appropriate Driver is tasked with executing the requested operation.
+When a client request is delegated by the VDR Interface, the appropriate Driver is tasked with executing the requested operation.
 This includes creating new data entries, updating existing data, retrieving stored data, or deleting data.
 Each Driver returns an `OperationResult` object that encapsulates detailed information about the operation, including storage paths, query parameters, fragments, and any relevant public keys.
 Additionally, Drivers are responsible for handling errors internally and for communicating any issues by setting the appropriate state in the `OperationResult`.
@@ -238,7 +238,7 @@ If multiple Cardano drivers are available, each will process the URL using the s
 The URL Manager Interface is responsible for constructing and resolving URLs that serve as pointers to the stored data.
 This component combines storage metadata—including paths, query parameters, and fragments—with predefined URL query parameters to create a comprehensive and unique URL for each data entry.
 When a client needs to retrieve, update, or verify data, the URL Manager parses the provided URL back into its constituent components.
-This parsing process extracts essential metadata such as driver identifiers, driver families, and driver versions, which are then used by the VDR Proxy to select the appropriate Driver.
+This parsing process extracts essential metadata such as driver identifiers, driver families, and driver versions, which are then used by the VDR Interface to select the appropriate Driver.
 The URL Manager also plays a crucial role in validating the structure of the URLs.
 It ensures that the URLs conform to expected formats and include all necessary metadata.
 In future iterations, the URL Manager is expected to support the integration of additional metadata—such as digital signatures for mutable data—to enhance the robustness and security of the URL construction and resolution process.
@@ -305,7 +305,7 @@ Overall, the dual approach to proof generation—simple hashes for immutable dat
 
 ### 6.3.1 Creating Data
 
-1. **Client Request**: The client sends data and associated metadata to the VDR Proxy. If a private key is included, it signifies that the data **may** be mutable.
+1. **Client Request**: The client sends data and associated metadata to the VDR Interface. If `m` is included in metadata and its `true`, it signifies that the data **may** be mutable.
 2. **Driver Selection**:
 - The VDR checks if a single or multiple Drivers are available.
 - If multiple Drivers exist, the VDR selects the appropriate one based on provided metadata (e.g., driver identifier, family, version).
@@ -313,7 +313,7 @@ Overall, the dual approach to proof generation—simple hashes for immutable dat
 - The selected Driver stores the data.
 - The Driver returns a `OperationResult` with details such as storage paths, query parameters, fragment, and the operation state.
 4. **URL Construction**:
-- The VDR Proxy passes the `OperationResult` to the URL Manager.
+- The VDR Interface passes the `OperationResult` to the URL Manager.
 - The URL Manager constructs a URL that embeds the necessary metadata using standard URL query parameters (e.g., `did`, `df`, `dv`, and either `h` for immutable data or `s` for mutable data).
 5. **Response**:
 - The constructed URL is returned to the client as a reference for retrieving or mutating the stored data.
@@ -323,7 +323,7 @@ Below is a sequence diagram illustrating the interactions between components for
 ```mermaid
 sequenceDiagram
     participant C as Client
-    participant V as VDR Proxy
+    participant V as VDR Interface
     participant D as Driver
     participant U as URL Manager
 
@@ -338,7 +338,7 @@ sequenceDiagram
 
 ### 6.3.2 Read Data
 
-1. **Client Request**: The client sends a retrieval request to the VDR Proxy, providing the URL of the stored data.
+1. **Client Request**: The client sends a retrieval request to the VDR Interface, providing the URL of the stored data.
 2. **URL Resolution**:
 - The VDR uses the URL Manager to resolve the URL into its components (paths, queries, fragment, and any public keys).
 3. **Driver Selection**:
@@ -352,7 +352,7 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     participant C as Client
-    participant V as VDR Proxy
+    participant V as VDR Interface
     participant U as URL Manager
     participant D as Driver
 
@@ -367,7 +367,7 @@ sequenceDiagram
 ### 6.3.3 Updating and Deleting Data
 
 For **update** and **deleting** operations, the process is similar to read:
-- The VDR Proxy uses the URL Manager to resolve the URL.
+- The VDR Interface uses the URL Manager to resolve the URL.
 - It selects the appropriate Driver based on the URL metadata.
 - The selected Driver performs the `update` or `delete` operation.
 - The VDR handles the response or any errors produced by the Driver.
@@ -378,7 +378,7 @@ For **update** and **deleting** operations, the process is similar to read:
 ```mermaid
 sequenceDiagram
     participant C as Client
-    participant V as VDR Proxy
+    participant V as VDR Interface
     participant U as URL Manager
     participant D as Driver
 
@@ -395,20 +395,20 @@ sequenceDiagram
 The VDR system also provides functionality for verifying the integrity and authenticity of stored data:
 
 1. **Client Request:**  
-   The client sends a verification request to the VDR Proxy, providing the URL of the stored data and optionally specifying whether the stored data should be returned along with the verification proof (using the `returnData` flag).
+   The client sends a verification request to the VDR Interface, providing the URL of the stored data and optionally specifying whether the stored data should be returned along with the verification proof (using the `returnData` flag).
 2. **URL Resolution:**  
-   The VDR Proxy uses the URL Manager to resolve the URL into its components (paths, queries, fragment, and any public keys). This step ensures that the necessary metadata for verification is available.
+   The VDR Interface uses the URL Manager to resolve the URL into its components (paths, queries, fragment, and any public keys). This step ensures that the necessary metadata for verification is available.
 3. **Driver Selection:**  
-   Based on the metadata extracted from the URL (e.g., driver identifier or driver family), the VDR Proxy selects the appropriate Driver to handle the verification process.
+   Based on the metadata extracted from the URL (e.g., driver identifier or driver family), the VDR Interface selects the appropriate Driver to handle the verification process.
 4. **Data Verification:**  
-   The VDR Proxy invokes the `verify(url, returnData)` function on the selected Driver. The Driver then performs the required cryptographic verification—using the SHA256 hash for immutable data or a digital signature for mutable data—to validate that the data has not been tampered with.
+   The VDR Interface invokes the `verify(url, returnData)` function on the selected Driver. The Driver then performs the required cryptographic verification—using the SHA256 hash for immutable data or a digital signature for mutable data—to validate that the data has not been tampered with.
 5. **Response:**  
-   The Driver returns a `Proof` object that contains the type of proof, optional data (if requested by the `returnData` flag), and the cryptographic proof itself. The VDR Proxy then forwards this `Proof` to the client as confirmation of the data's integrity and authenticity.
+   The Driver returns a `Proof` object that contains the type of proof, optional data (if requested by the `returnData` flag), and the cryptographic proof itself. The VDR Interface then forwards this `Proof` to the client as confirmation of the data's integrity and authenticity.
 
 ```mermaid
 sequenceDiagram
     participant C as Client
-    participant V as VDR Proxy
+    participant V as VDR Interface
     participant U as URL Manager
     participant D as Driver
 
@@ -424,51 +424,6 @@ sequenceDiagram
 
 ## 7. Data Model
 
-### 7.1 URL Path
-The VDR system enforces a standardized URL path structure to ensure consistency and conformance across all generated URLs. Each URL path must include the following segments in order:
-
-```
-<base-url>/<driver family>/<driver identifier>/<driver version>/<custom paths>
-```
-
-- **{driver family}**: Specifies the family or group of drivers capable of handling the stored data.
-- **{driver identifier}**: Identifies the specific driver instance used for the data storage operation.
-- **{driver version}**: Indicates the version of the driver implementation used during the storage operation.
-
-This structured approach guarantees that each URL unambiguously reflects the storage context, facilitates accurate selection of the appropriate driver, and supports interoperability among various components of the VDR system.
-
-#### Examples
-
-1. **Immutable Data HTTP URL**
-- **Example URL:** `http://example.io/cardano/cardanoNode/1.0?m=0`
-
-3. **Example 2: DID URL with Additional Custom Queries**
-- **Description:**  
-  Similar to the first example but as a DID URL and in addition to the basic metadata, two custom driver queries are included: one for block slot (`bs`) and one for block hash (`bh`).
-- **Example URL:** `did:method:abcteads123/cardano/cardanoNode/1.0?h=asdasdasdasdsasa&m=0&bs=100000&bh=asdasdasdassad`
-
-4. **Example 3: FTP URL with Transaction Hash**
-- **Description:**  
-  In this case, the data is still immutable and validated by a hash, but a custom query for the transaction hash (`bt`) is provided to help locate the data within a blockchain transaction.
-- **Example URL:** `ftp://cardano/cardanoNode/1.0?h=asdasdasdasdsasa&m=0&bt=adsadadasdasdaasdsasadas`
-
-5. **Example 4: DID URL for Mutable Data with Digital Signature**
-- **Description:**  
-  Here, the data is mutable. Instead of a hash, a digital signature (`s`) is used to verify data integrity. The proof type (`pt`) is specified (e.g., `ECDSAwithSHA256`), and the mutable flag (`m`) is set to true.
-- **Example URL:** `did:method:abcteads123/cardano/cardanoNode/1.0?s=sadasdsadasdsad&pt=ECDSAwithSHA256&m=1`
-- **In the event the data is updated:** The digital signature (`s`) will fail and the Holder/Verifier requires to request the proof from the VDR.
-
-6. **Example 5: DID URL with Multiple Services**
-- **Description:**  
-  This example demonstrates a DID URL for a record with multiple services. In addition to the standard driver metadata, it includes a `service` parameter and a `relativeRef` parameter as defined by the W3C DID specification (Section 3.2.1 DID Parameters). The mutable flag (`m`) is set to true.
-- **Example URL:** `did:method:abcteads123/cardano/cardanoNode/1.0?service=agent&relativeRef='/read?retrieveData=true'&m=1`
--
-7. **Example 6: HTTP URL with Custom Path**
-- **Description:**  
-  This example demonstrates a HTTP URL with custom Paths, note that the custom paths are after the driver version.
-- **Example URL:** `http://example.io/cardano/cardanoNode/1.0/record/1?h=asdasdasdasdsasa&m=0`
-
-
 ### 7.1 URL Query Parameters
 
 The system defines a registry of standard URL query parameters to carry metadata necessary for data retrieval and integrity verification.
@@ -477,14 +432,50 @@ Note that the **hash** parameter is only available when the data is immutable.
 For mutable data, a digital **signature** is provided to verify its integrity.
 Future versions of the specification will move this registry to a dedicated document.
 
-| **Query Parameter** | **Meaning**       | **Context**                                                                                                                                    |
-|---------------------|-------------------|------------------------------------------------------------------------------------------------------------------------------------------------|
-| **h**               | Hash              | A SHA256 hash used to validate the integrity of the data.                                                                                      |
-| **s**               | Signature         | A signature used to verify the integrity of the data.                                                                                          |
-| **pt**              | Proof Type        | A string representing the proof type in case of signature (**s**) is present.                                                                  |
-| **m**               | Mutable           | A boolean indicating that this data can be modified.                                                                                           |
+| **Query Parameter** | **Meaning**       | **Context**                                                                                         |
+|---------------------|-------------------|-----------------------------------------------------------------------------------------------------|
+| **drf**             | Driver family     | A string that specifies the family or group of drivers capable of handling the stored data.         |
+| **drid**            | Driver Identifier | A string that identifies the specific driver instance used for the data storage operation.          |
+| **drv**             | Driver Version    | A string that indicates the version of the driver implementation used during the storage operation. |
+| **h**               | Hash              | A SHA256 hash used to validate the integrity of the data. (optional)                                |
+| **s**               | Signature         | A signature used to verify the integrity of the data. (optional)                                    |
+| **pt**              | Proof Type        | A string representing the proof type in case of signature (**s**) is present. (optional)            |
+| **m**               | Mutable           | A boolean indicating that this data can be modified.                                                |
+| **contentType**     | Content Type      | A string indicating the contentType (optional).                                                     |
+| **mediaType**       | Media Type        | A string indicating the mediaType (optional).                                                       |
 
 > **Note:** At least one of **did** (Driver Identifier) or **df** (Driver Family) is required to be present in the URL to ensure that the appropriate Driver can be selected during data retrieval.
+
+#### Examples of URLs
+
+1. **Immutable Data HTTP URL**
+- **Example URL:** `http://example.io?drf=cardano&drid=cardanoNode&drv=1.0&m=0`
+
+3. **Example 2: DID URL with Additional Custom Queries**
+- **Description:**  
+  Similar to the first example but as a DID URL and in addition to the basic metadata, two custom driver queries are included: one for block slot (`bs`) and one for block hash (`bh`).
+- **Example URL:** `did:method:abcteads123?drf=cardano&drid=cardanoNode&drv=1.0&h=asdasdasdasdsasa&m=0&bs=100000&bh=asdasdasdassad`
+
+4. **Example 3: FTP URL with Transaction Hash**
+- **Description:**  
+  In this case, the data is still immutable and validated by a hash, but a custom query for the transaction hash (`bt`) is provided to help locate the data within a blockchain transaction.
+- **Example URL:** `ftp://?drf=cardano&drid=cardanoNode&drv=1.0&h=asdasdasdasdsasa&m=0&bt=adsadadasdasdaasdsasadas`
+
+5. **Example 4: DID URL for Mutable Data with Digital Signature**
+- **Description:**  
+  Here, the data is mutable. Instead of a hash, a digital signature (`s`) is used to verify data integrity. The proof type (`pt`) is specified (e.g., `ECDSAwithSHA256`), and the mutable flag (`m`) is set to true.
+- **Example URL:** `did:method:abcteads123?drf=cardano&drid=cardanoNode&drv=1.0&s=sadasdsadasdsad&pt=ECDSAwithSHA256&m=1`
+- **In the event the data is updated:** The digital signature (`s`) will fail and the Holder/Verifier requires to request the proof from the VDR.
+
+6. **Example 5: DID URL with Multiple Services**
+- **Description:**  
+  This example demonstrates a DID URL for a record with multiple services. In addition to the standard driver metadata, it includes a `service` parameter and a `relativeRef` parameter as defined by the W3C DID specification (Section 3.2.1 DID Parameters). The mutable flag (`m`) is set to true.
+- **Example URL:** `did:method:abcteads123?drf=cardano&drid=cardanoNode&drv=1.0&service=agent&relativeRef='/read?retrieveData=true'&m=1`
+-
+7. **Example 6: HTTP URL with Custom Path**
+- **Description:**  
+  This example demonstrates a HTTP URL with custom Paths, note that the custom paths are after the driver version.
+- **Example URL:** `http://example.io/cardano/cardanoNode/1.0/record/1?h=asdasdasdasdsasa&m=0`
 
 ### 7.2 Metadata Registry
 
@@ -571,12 +562,12 @@ The VDR interface relies on these components to signal errors and propagate mean
 
 ## 9. Future Milestones
 
-### 9.1 Milestone 2: VDR Proxy, Database Driver, and PrismDIDURLManager Integration
+### 9.1 Milestone 2: VDR Interface, Database Driver, and PrismDIDURLManager Integration
 
-The next milestone focuses on establishing a functional VDR Proxy implementation alongside core components that demonstrate the modular architecture in practice. The key developments in this milestone include:
+The next milestone focuses on establishing a functional VDR Interface implementation alongside core components that demonstrate the modular architecture in practice. The key developments in this milestone include:
 
-- **VDR Proxy Implementation:**  
-  Develop and deploy a VDR Proxy similar to the provided example. This proxy will serve as the central coordinator for data operations, delegating tasks to appropriate Drivers and URL Managers, and ensuring that data integrity and metadata validation are maintained.
+- **VDR Interface Implementation:**  
+  Develop and deploy a VDR Interface similar to the provided example. This proxy will serve as the central coordinator for data operations, delegating tasks to appropriate Drivers and URL Managers, and ensuring that data integrity and metadata validation are maintained.
 
 - **Database Driver:**  
   Implement a Database Driver that leverages traditional relational or NoSQL databases as a storage backend. This driver will handle data storage, mutation, retrieval, and removal, showcasing how the system can integrate with conventional storage technologies.
@@ -626,7 +617,7 @@ Overall, while the VDR system leverages advanced cryptographic techniques to mai
 
 ## 11. Conclusion
 
-The VDR system is designed to provide a modular, extensible framework for verifiable data operations. By decoupling the storage (Drivers) and URL management (URL Managers) from the core VDR proxy, the system allows seamless integration of diverse storage solutions while ensuring robust error handling and data integrity. Standardized URL query parameters facilitate precise driver selection and data validation, laying the groundwork for a secure and scalable data registry.
+The VDR system is designed to provide a modular, extensible framework for verifiable data operations. By decoupling the storage (Drivers) and URL management (URL Managers) from the core VDR Interface, the system allows seamless integration of diverse storage solutions while ensuring robust error handling and data integrity. Standardized URL query parameters facilitate precise driver selection and data validation, laying the groundwork for a secure and scalable data registry.
 
 Future enhancements, such as the registry for Drivers and URL Managers, will further improve the adaptability and maintainability of the system.
 
