@@ -20,6 +20,10 @@ Please refer to our [Contribution Guidelines](https://github.com/hyperledger-ide
   IOG Engineer <br>
   [fabio.pinheiro@iohk.io](mailto:fabio.pinheiro@iohk.io) <br>
   [github](https://github.com/FabioPinheiro)
+- **Yurii Shynbuiev** <br>
+  IOG Engineer <br>
+  [yurii.shynbuiev@iohk.io](mailto:yurii.shynbuiev@iohk.io) <br>
+  [github](https://github.com./yshyn-iohk)
 
 ### Maintainers
 
