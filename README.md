@@ -6,8 +6,8 @@ This document specifies the architecture, components, and data model for the Ver
 
 ## Authors and Contributors
 
-This document is developed and maintained by a dedicated team of authors and editors committed to advancing the Verifiable Data Registry (VDR) system. 
-Contributions from the community are welcome and encouraged. 
+This document is developed and maintained by a dedicated team of authors and editors committed to advancing the Verifiable Data Registry (VDR) system.
+Contributions from the community are welcome and encouraged.
 Please refer to our [Contribution Guidelines](https://github.com/hyperledger-identus/vdr/CONTRIBUTING.md) for further details on how you can contribute.
 
 ### Authors
@@ -39,23 +39,23 @@ Please refer to our [Contribution Guidelines](https://github.com/hyperledger-ide
 
 ### Contribution
 
-We value contributions from the community. 
+We value contributions from the community.
 If you would like to contribute, please review our [Contribution Guidelines](https://github.com/hyperledger-identus/vdr/CONTRIBUTING.md) for more information on the process and requirements.
 
 ---
 
 ## 1. Abstract
 
-The Verifiable Data Registry (VDR) system provides a unified API for storing, mutating, retrieving, and removing data. 
-The system decouples the application layer from underlying storage mechanisms by leveraging pluggable components: **Drivers** and **URL Managers**. 
+The Verifiable Data Registry (VDR) system provides a unified API for storing, mutating, retrieving, and removing data.
+The system decouples the application layer from underlying storage mechanisms by leveraging pluggable components: **Drivers** and **URL Managers**.
 This specification defines the roles, relationships, and data model used by these components, as well as standard URL query parameters that facilitate driver selection and data integrity verification.
 
 ---
 
 ## 2. Introduction
 
-The VDR system is designed to enable verifiable data operations across various storage backends such as databases, blockchains, or in-memory storage. 
-It also supports flexible URL construction and parsing for addressing stored data. 
+The VDR system is designed to enable verifiable data operations across various storage backends such as databases, blockchains, or in-memory storage.
+It also supports flexible URL construction and parsing for addressing stored data.
 Through its modular architecture, the system can adapt to different technologies and deployment environments.
 
 Key components include:
@@ -72,28 +72,35 @@ Future enhancements include a centralized registry for Drivers and URL Managers 
 
 ### 3.1 Issuers
 
-In the VDR ecosystem, Issuers are the primary sources of verifiable data. 
-They generate the data and then publish it into the system along with the required metadata. 
-This metadata—such as driver identifiers, driver family, and driver version—is critical for ensuring that any consumer can later retrieve and verify the data. 
-When the data is intended to be mutable, Issuers sign the data using their private keys, indicating that updates may occur in the future. 
-For immutable data, a cryptographic hash is computed and attached, ensuring that any alteration can be detected immediately. 
+In the VDR ecosystem, Issuers are the primary sources of verifiable data.
+They generate the data and then publish it into the system along with the required metadata.
+This metadata—such as driver identifiers, driver family, and driver version—is critical for ensuring that any consumer can later retrieve and verify the data.
+When the data is intended to be mutable, Issuers sign the data using their private keys, indicating that updates may occur in the future.
+For immutable data, a cryptographic hash is computed and attached, ensuring that any alteration can be detected immediately.
 The Issuer's role is foundational, as they not only establish the data’s integrity and authenticity but also guarantee that the associated metadata is both accurate and complete.
 
 ### 3.2 Holders
 
-Holders are consumers who acquire and store verifiable data for their own use. 
-They might download and cache data to maintain personal records or build a history of transactions that can be referenced later. 
-For Holders, ensuring the integrity and authenticity of the data is paramount. 
-The data they store is expected to remain unaltered unless explicitly updated by the Issuer, which allows them to trust that the historical record remains accurate over time. 
+Holders are consumers who acquire and store verifiable data for their own use.
+They might download and cache data to maintain personal records or build a history of transactions that can be referenced later.
+For Holders, ensuring the integrity and authenticity of the data is paramount.
+The data they store is expected to remain unaltered unless explicitly updated by the Issuer, which allows them to trust that the historical record remains accurate over time.
 By preserving this information, Holders support a reliable audit trail and provide a basis for subsequent verification and analysis.
 
 ### 3.3 Verifiers
 
-Verifiers are consumers whose primary responsibility is to validate the authenticity and integrity of the data published by Issuers. 
-These parties often act as independent third parties, relying on the data for critical decision-making. 
-They retrieve data from the VDR using URLs provided by the Issuers and then use the embedded metadata—such as the SHA256 hash for immutable data or the digital signature for mutable data—to perform independent verification. 
-This process confirms that the data has not been tampered with and complies with the established trust frameworks or regulatory standards. 
+Verifiers are consumers whose primary responsibility is to validate the authenticity and integrity of the data published by Issuers.
+These parties often act as independent third parties, relying on the data for critical decision-making.
+They retrieve data from the VDR using URLs provided by the Issuers and then use the embedded metadata—such as the SHA256 hash for immutable data or the digital signature for mutable data—to perform independent verification.
+This process confirms that the data has not been tampered with and complies with the established trust frameworks or regulatory standards.
 By doing so, Verifiers play a crucial role in creating a trustless environment, where multiple parties can confidently rely on the data without the need for a centralized authority.
+
+### 3.4 VDR System (Verifiable Data Registry)
+
+The VDR itself acts as a central component within the ecosystem, orchestrating data operations between Issuers, Holders, and Verifiers.
+It securely stores and manages data records while ensuring that all associated metadata is maintained accurately.
+The VDR is responsible for constructing verifiable URLs, enforcing standardized data formats, and facilitating cryptographic verification processes.
+By doing so, it provides a consistent and trusted environment where data integrity can be independently validated, supporting seamless interactions among all other actors in the system.
 
 ```mermaid
 graph LR
@@ -107,16 +114,16 @@ graph LR
     B -->|Provides verifiable URL and cryptographic proof| D
     D -->|Uses embedded metadata hash and signature for verification| B
 ```
-This diagram illustrates the core relationships among the actors within the VDR system. 
-The **Issuer** generates and publishes data along with the required metadata—attaching either a cryptographic hash for immutable data or a digital signature for mutable data—via the VDR Proxy. 
-The **VDR System** then stores this data and issues verifiable URLs that encapsulate the necessary metadata and proofs. 
-**Holders** retrieve these URLs to acquire and store the data for personal records, while **Verifiers** use the provided URLs and embedded cryptographic proofs to independently validate the data's integrity and authenticity. 
+This diagram illustrates the core relationships among the actors within the VDR system.
+The **Issuer** generates and publishes data along with the required metadata—attaching either a cryptographic hash for immutable data or a digital signature for mutable data—via the VDR Proxy.
+The **VDR System** then stores this data and issues verifiable URLs that encapsulate the necessary metadata and proofs.
+**Holders** retrieve these URLs to acquire and store the data for personal records, while **Verifiers** use the provided URLs and embedded cryptographic proofs to independently validate the data's integrity and authenticity.
 This architecture fosters a trustless environment where data integrity is maintained through robust, decentralized verification.
 
 ## 4. Problem Statement
 
-In an era where data is generated and consumed at unprecedented scales, ensuring the authenticity and integrity of publicly available data has become a critical challenge. 
-Many systems rely on centralized authorities to manage data storage and verification, which introduces single points of failure and can compromise trust. 
+In an era where data is generated and consumed at unprecedented scales, ensuring the authenticity and integrity of publicly available data has become a critical challenge.
+Many systems rely on centralized authorities to manage data storage and verification, which introduces single points of failure and can compromise trust.
 This is particularly problematic in environments where multiple independent parties require confidence in the data they consume, such as in supply chain management, digital identity, financial records, and open government data.
 
 ### 4.1 Key Challenges
@@ -158,7 +165,7 @@ The Verifiable Data Registry (VDR) is designed to solve these complex problems b
 
 The following terms are used throughout this specification:
 
-- **VDR**: Verifiable Data Registry – a system that offers a unified API for data operations.
+- **VDR (Verifiable Data Registry):** A system that securely stores and manages data, enabling the issuance, verification, and validation of data records. VDRs often leverage decentralized technologies, such as blockchain, to ensure data integrity and authenticity. They serve as trusted sources to confirm that data remains tamper-proof and reliable, while remaining abstract enough to be applied across various domains.
 - **Driver**: A plugin responsible for implementing data storage, mutation, retrieval, and removal.
 - **URL Manager**: A component that constructs and resolves URLs used to reference stored data.
 - **OperationResult**: The outcome of a storage operation, containing metadata such as operation state, paths, queries, and fragments.
@@ -175,29 +182,29 @@ The VDR system is composed of several core components that work together to perf
 
 ### 6.1.1 VDR Proxy (VDR Interface)
 
-The VDR Proxy serves as the central coordinator of the entire system. 
-It is the primary entry point for client requests and is responsible for orchestrating the flow of data through the system. 
-When a client submits a request—whether to create, update, read, delete, or verify data—the VDR Proxy first validates the incoming metadata and ensures that all necessary parameters are present. 
+The VDR Proxy serves as the central coordinator of the entire system.
+It is the primary entry point for client requests and is responsible for orchestrating the flow of data through the system.
+When a client submits a request—whether to create, update, read, delete, or verify data—the VDR Proxy first validates the incoming metadata and ensures that all necessary parameters are present.
 This component then selects the appropriate Driver based on the URL query parameters or metadata provided by the client.
 Overall, the VDR Proxy plays a pivotal role in maintaining the integrity of the data flow by ensuring that each request is directed to the correct component for further processing.
 
-  - Acts as the central coordinator for all data operations.
-  - Receives client requests and delegates the tasks to appropriate Drivers and URL Managers.
-  - Validates metadata and selects the correct Driver based on URL query parameters.
+- Acts as the central coordinator for all data operations.
+- Receives client requests and delegates the tasks to appropriate Drivers and URL Managers.
+- Validates metadata and selects the correct Driver based on URL query parameters.
 
 ### 6.1.2 Driver Interface
 
-The Driver Interface is at the heart of the actual data operations within the VDR system. 
-Drivers are the pluggable components that implement the storage mechanisms, which could range from traditional databases to blockchain-based systems or in-memory storage solutions. 
-When a client request is delegated by the VDR Proxy, the appropriate Driver is tasked with executing the requested operation. 
+The Driver Interface is at the heart of the actual data operations within the VDR system.
+Drivers are the pluggable components that implement the storage mechanisms, which could range from traditional databases to blockchain-based systems or in-memory storage solutions.
+When a client request is delegated by the VDR Proxy, the appropriate Driver is tasked with executing the requested operation.
 This includes creating new data entries, updating existing data, retrieving stored data, or deleting data.
-Each Driver returns an `OperationResult` object that encapsulates detailed information about the operation, including storage paths, query parameters, fragments, and any relevant public keys. 
-Additionally, Drivers are responsible for handling errors internally and for communicating any issues by setting the appropriate state in the `OperationResult`. 
-For mutable data, Drivers take on the additional responsibility of managing and resolving updated data records. 
+Each Driver returns an `OperationResult` object that encapsulates detailed information about the operation, including storage paths, query parameters, fragments, and any relevant public keys.
+Additionally, Drivers are responsible for handling errors internally and for communicating any issues by setting the appropriate state in the `OperationResult`.
+For mutable data, Drivers take on the additional responsibility of managing and resolving updated data records.
 They must determine how to locate and retrieve the latest version of data when a URL points to a record that has undergone mutation.
-Furthermore, the Driver is also responsible for the proof mechanism within the system. 
-When a verification request is made, the Driver performs the necessary cryptographic operations—such as computing a SHA256 hash for immutable data or verifying a digital signature for mutable data—to generate a `Proof` object. 
-This proof contains a type identifier, the cryptographic proof itself, and, if requested, the data used in the verification process. 
+Furthermore, the Driver is also responsible for the proof mechanism within the system.
+When a verification request is made, the Driver performs the necessary cryptographic operations—such as computing a SHA256 hash for immutable data or verifying a digital signature for mutable data—to generate a `Proof` object.
+This proof contains a type identifier, the cryptographic proof itself, and, if requested, the data used in the verification process.
 By handling the proof mechanism, the Driver ensures that clients can independently verify the integrity and authenticity of the stored data, thus reinforcing trust in the system.
 
 - Implements the actual storage mechanism (e.g., database, blockchain, in-memory).
@@ -211,51 +218,51 @@ By handling the proof mechanism, the Driver ensures that clients can independent
 
 **Driver Family:**
 
-An important concept within the VDR system is that of a Driver Family. 
-Drivers belonging to the same family share a common interpretation of URLs and metadata, meaning they adhere to the same standards and protocols for storing and retrieving data. 
-This consistency allows different implementations within a single Driver Family to interpret the same URL in a uniform manner and retrieve the same data. 
-In practice, this means that if multiple Drivers of the same family are deployed, a client can expect a consistent experience regardless of which specific Driver processes their request. 
+An important concept within the VDR system is that of a Driver Family.
+Drivers belonging to the same family share a common interpretation of URLs and metadata, meaning they adhere to the same standards and protocols for storing and retrieving data.
+This consistency allows different implementations within a single Driver Family to interpret the same URL in a uniform manner and retrieve the same data.
+In practice, this means that if multiple Drivers of the same family are deployed, a client can expect a consistent experience regardless of which specific Driver processes their request.
 The Driver Family concept promotes interoperability and flexibility within the system by allowing for redundancy and diversity in implementations while maintaining uniformity in how data is accessed and verified.
 
 *Example:*  
-Consider the **Cardano** Driver family. 
-Drivers within this family, such as those interfacing with Cardano-based systems, share the same protocols for interpreting URLs and handling blockchain-specific metadata. 
+Consider the **Cardano** Driver family.
+Drivers within this family, such as those interfacing with Cardano-based systems, share the same protocols for interpreting URLs and handling blockchain-specific metadata.
 If multiple Cardano drivers are available, each will process the URL using the same logic to retrieve data from the Cardano blockchain, ensuring that all drivers in the Cardano family provide consistent and interoperable results.
 
 ### 6.1.3 URL Manager Interface
 
-The URL Manager Interface is responsible for constructing and resolving URLs that serve as pointers to the stored data. 
-This component combines storage metadata—including paths, query parameters, and fragments—with predefined URL query parameters to create a comprehensive and unique URL for each data entry. 
-When a client needs to retrieve, update, or verify data, the URL Manager parses the provided URL back into its constituent components. 
+The URL Manager Interface is responsible for constructing and resolving URLs that serve as pointers to the stored data.
+This component combines storage metadata—including paths, query parameters, and fragments—with predefined URL query parameters to create a comprehensive and unique URL for each data entry.
+When a client needs to retrieve, update, or verify data, the URL Manager parses the provided URL back into its constituent components.
 This parsing process extracts essential metadata such as driver identifiers, driver families, and driver versions, which are then used by the VDR Proxy to select the appropriate Driver.
-The URL Manager also plays a crucial role in validating the structure of the URLs. 
-It ensures that the URLs conform to expected formats and include all necessary metadata. 
-In future iterations, the URL Manager is expected to support the integration of additional metadata—such as digital signatures for mutable data—to enhance the robustness and security of the URL construction and resolution process. 
+The URL Manager also plays a crucial role in validating the structure of the URLs.
+It ensures that the URLs conform to expected formats and include all necessary metadata.
+In future iterations, the URL Manager is expected to support the integration of additional metadata—such as digital signatures for mutable data—to enhance the robustness and security of the URL construction and resolution process.
 Through these functions, the URL Manager ensures that the link between stored data and its associated metadata is maintained accurately, facilitating efficient and reliable data retrieval.
 
-  - Constructs URLs by combining storage metadata (paths, queries, fragments) with predefined URL query parameters.
-  - Resolves incoming URLs into their constituent components to facilitate correct Driver selection.
-  - Validates URL structure and ensures required metadata is present.
-  - Supports the integration of additional metadata (e.g., signature for mutable data) in future enhancements.
+- Constructs URLs by combining storage metadata (paths, queries, fragments) with predefined URL query parameters.
+- Resolves incoming URLs into their constituent components to facilitate correct Driver selection.
+- Validates URL structure and ensures required metadata is present.
+- Supports the integration of additional metadata (e.g., signature for mutable data) in future enhancements.
 
 ## 6.2 Data Mutability and Proofs
 
-The VDR system is designed to support both immutable and mutable data storage, and its proof mechanism plays a pivotal role in ensuring data integrity and authenticity across both scenarios. 
+The VDR system is designed to support both immutable and mutable data storage, and its proof mechanism plays a pivotal role in ensuring data integrity and authenticity across both scenarios.
 This section outlines how data mutability is handled and the corresponding role of cryptographic proofs in validating data.
 
 ### 6.2.1 Data Mutability
 
-Data mutability in the VDR system is indicated when a **m** boolean flag is provided as metadata during a storage operation. 
-This signals that the data is intended to be updatable in the future, if present this flag will be added to the URL as a query. 
+Data mutability in the VDR system is indicated when a **m** boolean flag is provided as metadata during a storage operation.
+This signals that the data is intended to be updatable in the future, if present this flag will be added to the URL as a query.
 When data is mutable, the Issuer is expected to sign the data using their private key, which not only marks the data as subject to change but also provides a mechanism for authenticating subsequent updates. Conversely, immutable data is stored without such signatures and is accompanied by a cryptographic hash (typically a SHA256 hash) that guarantees its unchangeable state.
 
-Mutable data introduces additional complexity, as it requires the system to reliably track and retrieve the most recent version of a data record. 
-Drivers, which are responsible for executing storage operations, must implement logic to manage these updates. 
+Mutable data introduces additional complexity, as it requires the system to reliably track and retrieve the most recent version of a data record.
+Drivers, which are responsible for executing storage operations, must implement logic to manage these updates.
 They need to resolve URLs pointing to data that has undergone mutation and ensure that verifiers receive the latest, correctly authenticated version of the data.
 
 ### 6.2.2 Proof Mechanisms for Data Integrity
 
-The VDR system uses cryptographic proofs to enable independent verification of stored data, regardless of its mutability. 
+The VDR system uses cryptographic proofs to enable independent verification of stored data, regardless of its mutability.
 The type of proof provided depends on whether the data is mutable or immutable:
 
 - **Immutable Data Proofs:**  
@@ -264,20 +271,20 @@ The type of proof provided depends on whether the data is mutable or immutable:
 - **Mutable Data Proofs:**  
   For mutable data, a more robust approach is required. Digital signatures (e.g., EDDSAWithSHA256, RSAWithSHA256, or ECDSAWithSHA256) are used to prove that any update was authorized by the original Issuer. This digital signature serves as a cryptographic guarantee that the data, although subject to change, remains authentic. In addition, advanced proof techniques such as Merkle trees may be employed when dealing with large or complex datasets, allowing verifiers to confirm the inclusion of specific data elements without revealing the entire dataset.
 
-Other proof mechanisms, can also be integrated to support privacy-preserving verification where sensitive information is involved. 
+Other proof mechanisms, can also be integrated to support privacy-preserving verification where sensitive information is involved.
 These mechanisms align with existing RFCs and standards, ensuring interoperability with other systems that require high levels of data integrity and privacy.
 
 ### 6.2.3 Driver Responsibilities in Proof Generation
 
-Drivers bear the primary responsibility for generating and managing these cryptographic proofs. 
-When a verification request is made, the appropriate Driver performs the necessary operations to produce a `Proof` object. 
+Drivers bear the primary responsibility for generating and managing these cryptographic proofs.
+When a verification request is made, the appropriate Driver performs the necessary operations to produce a `Proof` object.
 This object includes:
 
 - **type**: A descriptor of the proof type (e.g., "SHA256" for immutable data, "EDDSAWithSHA256" for mutable data).
 - **data**: Optionally, the actual data if the verification request specifies that the data should be returned.
 - **proof**: The cryptographic proof itself—either a hash or a digital signature—depending on the data's mutability.
 
-By managing the proof mechanism, Drivers ensure that clients and third-party verifiers can independently validate the integrity and authenticity of the data. 
+By managing the proof mechanism, Drivers ensure that clients and third-party verifiers can independently validate the integrity and authenticity of the data.
 This responsibility is central to fostering a decentralized, trustless ecosystem where no single party is solely relied upon to assert the validity of stored information.
 
 ### 6.2.4 Importance of Proofs in a Mutable Environment
@@ -296,16 +303,16 @@ Overall, the dual approach to proof generation—simple hashes for immutable dat
 
 1. **Client Request**: The client sends data and associated metadata to the VDR Proxy. If a private key is included, it signifies that the data **may** be mutable.
 2. **Driver Selection**:
-  - The VDR checks if a single or multiple Drivers are available.
-  - If multiple Drivers exist, the VDR selects the appropriate one based on provided metadata (e.g., driver identifier, family, version).
+- The VDR checks if a single or multiple Drivers are available.
+- If multiple Drivers exist, the VDR selects the appropriate one based on provided metadata (e.g., driver identifier, family, version).
 3. **Data Storage**:
-  - The selected Driver stores the data.
-  - The Driver returns a `OperationResult` with details such as storage paths, query parameters, fragment, and the operation state.
+- The selected Driver stores the data.
+- The Driver returns a `OperationResult` with details such as storage paths, query parameters, fragment, and the operation state.
 4. **URL Construction**:
-  - The VDR Proxy passes the `OperationResult` to the URL Manager.
-  - The URL Manager constructs a URL that embeds the necessary metadata using standard URL query parameters (e.g., `did`, `df`, `dv`, and either `h` for immutable data or `s` for mutable data).
+- The VDR Proxy passes the `OperationResult` to the URL Manager.
+- The URL Manager constructs a URL that embeds the necessary metadata using standard URL query parameters (e.g., `did`, `df`, `dv`, and either `h` for immutable data or `s` for mutable data).
 5. **Response**:
-  - The constructed URL is returned to the client as a reference for retrieving or mutating the stored data.
+- The constructed URL is returned to the client as a reference for retrieving or mutating the stored data.
 
 Below is a sequence diagram illustrating the interactions between components for a typical data storage operation.
 
@@ -329,14 +336,14 @@ sequenceDiagram
 
 1. **Client Request**: The client sends a retrieval request to the VDR Proxy, providing the URL of the stored data.
 2. **URL Resolution**:
-  - The VDR uses the URL Manager to resolve the URL into its components (paths, queries, fragment, and any public keys).
+- The VDR uses the URL Manager to resolve the URL into its components (paths, queries, fragment, and any public keys).
 3. **Driver Selection**:
-  - The metadata (e.g., driver identifier) extracted from the URL helps the VDR select the appropriate Driver.
+- The metadata (e.g., driver identifier) extracted from the URL helps the VDR select the appropriate Driver.
 4. **Data Retrieval**:
-  - The VDR calls the `read` method of the selected Driver, passing along the resolved URL components.
-  - The Driver returns the stored data as a byte array.
+- The VDR calls the `read` method of the selected Driver, passing along the resolved URL components.
+- The Driver returns the stored data as a byte array.
 5. **Response**:
-  - The data is returned to the client.
+- The data is returned to the client.
 
 ```mermaid
 sequenceDiagram
@@ -428,7 +435,7 @@ This structured approach guarantees that each URL unambiguously reflects the sto
 
 #### Examples
 
-1. **Immutable Data HTTP URL**  
+1. **Immutable Data HTTP URL**
 - **Example URL:** `http://example.io/cardano/cardanoNode/1.0?m=0`
 
 3. **Example 2: DID URL with Additional Custom Queries**
@@ -451,19 +458,19 @@ This structured approach guarantees that each URL unambiguously reflects the sto
 - **Description:**  
   This example demonstrates a DID URL for a record with multiple services. In addition to the standard driver metadata, it includes a `service` parameter and a `relativeRef` parameter as defined by the W3C DID specification (Section 3.2.1 DID Parameters). The mutable flag (`m`) is set to true.
 - **Example URL:** `did:method:abcteads123/cardano/cardanoNode/1.0?service=agent&relativeRef='/read?retrieveData=true'&m=1`
-- 
+-
 7. **Example 6: HTTP URL with Custom Path**
 - **Description:**  
-  This example demonstrates a HTTP URL with custom Paths, note that the custom paths are after the driver version. 
+  This example demonstrates a HTTP URL with custom Paths, note that the custom paths are after the driver version.
 - **Example URL:** `http://example.io/cardano/cardanoNode/1.0/record/1?h=asdasdasdasdsasa&m=0`
 
 
 ### 7.1 URL Query Parameters
 
-The system defines a registry of standard URL query parameters to carry metadata necessary for data retrieval and integrity verification. 
-This registry is designed to be extensible, allowing new parameters to be added as the system evolves. 
-Note that the **hash** parameter is only available when the data is immutable. 
-For mutable data, a digital **signature** is provided to verify its integrity. 
+The system defines a registry of standard URL query parameters to carry metadata necessary for data retrieval and integrity verification.
+This registry is designed to be extensible, allowing new parameters to be added as the system evolves.
+Note that the **hash** parameter is only available when the data is immutable.
+For mutable data, a digital **signature** is provided to verify its integrity.
 Future versions of the specification will move this registry to a dedicated document.
 
 | **Query Parameter** | **Meaning**       | **Context**                                                                                                                                    |
@@ -477,7 +484,7 @@ Future versions of the specification will move this registry to a dedicated docu
 
 ### 7.2 Metadata Registry
 
-In addition to URL query parameters, the system maintains a Metadata Registry that defines keys used to annotate stored data. 
+In addition to URL query parameters, the system maintains a Metadata Registry that defines keys used to annotate stored data.
 This registry ensures consistency in metadata usage across components and is designed to be extensible.
 Future versions of the specification may expand this registry to include additional metadata keys.
 
@@ -502,19 +509,19 @@ Drivers return a `OperationResult` object after performing storage operations. T
 
 ### 7.4 Proof
 
-The VDR system provides a robust mechanism to verify the integrity and authenticity of stored data through a cryptographic proof. 
-The `Proof` object encapsulates all the necessary information to validate the data without exposing the raw content itself, unless explicitly requested. 
-This mechanism is fundamental to establishing trust within the system by allowing any consumer to independently verify that the data remains unaltered from its original state.
+The VDR system provides a robust mechanism to verify the integrity and authenticity of stored data through a cryptographic proof.
+The `Proof` object encapsulates all the necessary information to validate the data without exposing the raw content itself, unless explicitly requested.
+This mechanism is fundamental to establishing trust within the system by allowing any consumer to independently verify that the data remains untampered by third parties.
 
 The `Proof` object includes the following properties:
 
 - **type**:  
   A string that indicates the type of cryptographic proof generated. Examples include:
-  - **SHA256**: A simple hash of the data, used when the data is immutable.
-  - **EDDSAWithSHA256**: A digital signature combining the EDDSA algorithm with SHA256 hashing, typically used when the data is mutable.
-  - **RSAWithSHA256**: A digital signature generated using RSA encryption alongside SHA256 hashing.
-  - **ECDSAWithSHA256**: A signature using the Elliptic Curve Digital Signature Algorithm (ECDSA) in combination with SHA256.  
-    These proof types enable the system to adapt to different security requirements and operational scenarios.
+    - **SHA256**: A simple hash of the data, used when the data is immutable.
+    - **EDDSAWithSHA256**: A digital signature combining the EDDSA algorithm with SHA256 hashing, typically used when the data is mutable.
+    - **RSAWithSHA256**: A digital signature generated using RSA encryption alongside SHA256 hashing.
+    - **ECDSAWithSHA256**: A signature using the Elliptic Curve Digital Signature Algorithm (ECDSA) in combination with SHA256.  
+      These proof types enable the system to adapt to different security requirements and operational scenarios.
 
 - **data**:  
   An optional byte array containing the retrieved data if the verification request specifies that the data should be returned (using the `returnData` flag). This allows verifiers to compare the actual data against the proof if necessary.
@@ -522,23 +529,23 @@ The `Proof` object includes the following properties:
 - **proof**:  
   A byte array representing the cryptographic proof itself. Depending on the nature of the data, this may be a hash (for immutable data) or a digital signature (for mutable data). The proof is used by verifiers to ensure that the data has not been altered since it was originally stored.
 
-The importance of this proof mechanism lies in its ability to facilitate decentralized trust. 
+The importance of this proof mechanism lies in its ability to facilitate decentralized trust.
 In a trustless environment, where no single authority can vouch for the data's integrity, the proof provides a way for multiple parties—be they Holders or Verifiers—to independently confirm that the data has not been tampered with.
 
-For example, in blockchain applications, a simple **SHA256** hash might be sufficient to prove that an immutable record has not changed, while in scenarios where data updates are allowed, a digital signature such as **EDDSAWithSHA256** ensures that any modifications are properly authenticated by the issuing party. 
+For example, in blockchain applications, a simple **SHA256** hash might be sufficient to prove that an immutable record has not changed, while in scenarios where data updates are allowed, a digital signature such as **EDDSAWithSHA256** ensures that any modifications are properly authenticated by the issuing party.
 Furthermore, more complex proof structures can be utilized in larger systems:
 
 - **Merkle Tree Proofs**:  
   When dealing with large datasets or collections of data entries, Merkle trees can be employed to create a single hash (the Merkle root) that represents the entire dataset. Individual proofs can then be generated to verify the inclusion of a specific piece of data within the dataset without having to expose the entire dataset. This approach is commonly used in blockchain systems and distributed file storage.
 
-By incorporating multiple types of cryptographic proofs, the VDR system can meet diverse security requirements while maintaining efficiency. 
-Immutable data can be verified quickly using simple hashes, whereas mutable data benefits from the stronger assurances provided by digital signatures and advanced proof techniques such as Merkle trees. 
-Drivers play a crucial role in this process, as they are responsible for generating and managing these proofs. 
+By incorporating multiple types of cryptographic proofs, the VDR system can meet diverse security requirements while maintaining efficiency.
+Immutable data can be verified quickly using simple hashes, whereas mutable data benefits from the stronger assurances provided by digital signatures and advanced proof techniques such as Merkle trees.
+Drivers play a crucial role in this process, as they are responsible for generating and managing these proofs.
 They must implement the appropriate cryptographic mechanisms based on the nature of the data and the specific requirements of the operation.
 
 This flexibility is essential for supporting a wide range of applications—from financial records and digital identities to supply chain management and open government data—by allowing each Driver to choose and execute the most suitable proof mechanism for its storage medium.
 
-Overall, the proof mechanism is a cornerstone of the VDR system, ensuring that every piece of stored data can be independently validated. 
+Overall, the proof mechanism is a cornerstone of the VDR system, ensuring that every piece of stored data can be independently validated.
 The responsibility of generating, maintaining, and providing these proofs lies with the Drivers, which in turn fosters a secure, transparent, and decentralized ecosystem where data integrity and authenticity are maintained through robust cryptographic verification.
 
 ---
