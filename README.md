@@ -16,6 +16,10 @@ Please refer to our [Contribution Guidelines](https://github.com/hyperledger-ide
   IOG Engineer <br>
   [goncalo.frade@iohk.io](mailto:goncalo.frade@iohk.io) <br>
   [github](https://github.com/goncalo-frade-iohk)
+- **Fabio Pinheiro** <br>
+  IOG Engineer <br>
+  [fabio.pinheiro@iohk.io](mailto:fabio.pinheiro@iohk.io) <br>
+  [github](https://github.com/FabioPinheiro)
 
 ### Maintainers
 
