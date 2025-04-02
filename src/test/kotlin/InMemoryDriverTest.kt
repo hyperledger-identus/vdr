@@ -23,7 +23,7 @@ class InMemoryDriverTest {
     fun `store should add data to storage and return a valid StoreResult`() {
         val data = "Sample Data".toByteArray()
 
-        val result = driver.store(data, privateKeys = null, metadata = null)
+        val result = driver.create(data, metadata = null)
 
         assertEquals(Driver.OperationState.SUCCESS, result.state)
         assertTrue(driver.storage.containsKey(result.fragment))
@@ -36,7 +36,7 @@ class InMemoryDriverTest {
         val uuid = UUID.randomUUID().toString()
         driver.storage[uuid] = data
 
-        val result = driver.get(paths = arrayOf(), queries = emptyMap(), fragment = uuid, publicKeys = null)
+        val result = driver.read(paths = arrayOf(), queries = emptyMap(), fragment = uuid, publicKeys = null)
 
         assertArrayEquals(data, result)
     }
@@ -44,7 +44,7 @@ class InMemoryDriverTest {
     @Test
     fun `get should throw DataCouldNotBeFoundException when fragment is null`() {
         assertThrows(InMemoryDriver.DataCouldNotBeFoundException::class.java) {
-            driver.get(paths = arrayOf(), queries = emptyMap(), fragment = null, publicKeys = null)
+            driver.read(paths = arrayOf(), queries = emptyMap(), fragment = null, publicKeys = null)
         }
     }
 
@@ -54,7 +54,7 @@ class InMemoryDriverTest {
         val uuid = UUID.randomUUID().toString()
         driver.storage[uuid] = data
 
-        driver.remove(paths = arrayOf(), queries = emptyMap(), fragment = uuid, privateKeys = null, metadata = null)
+        driver.delete(paths = arrayOf(), queries = emptyMap(), fragment = uuid, metadata = null)
 
         assertFalse(driver.storage.containsKey(uuid))
     }
@@ -62,7 +62,7 @@ class InMemoryDriverTest {
     @Test
     fun `remove should throw DataCouldNotBeFoundException when fragment is null`() {
         assertThrows(InMemoryDriver.DataCouldNotBeFoundException::class.java) {
-            driver.remove(paths = arrayOf(), queries = emptyMap(), fragment = null, privateKeys = null, metadata = null)
+            driver.delete(paths = arrayOf(), queries = emptyMap(), fragment = null, metadata = null)
         }
     }
 }
