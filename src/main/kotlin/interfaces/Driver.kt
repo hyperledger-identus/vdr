@@ -1,6 +1,5 @@
 package interfaces
 
-import java.security.PrivateKey
 import java.security.PublicKey
 
 /**
@@ -63,12 +62,12 @@ interface Driver {
      * Creates data using the driver.
      *
      * @param data The data to be stored as a byte array.
-     * @param metadata Optional metadata for the storage operation.
+     * @param options Optional metadata for the storage operation.
      * @return A [OperationResult] containing the details and state of the storage operation.
      */
     fun create(
         data: ByteArray,
-        metadata: Map<String, String>?
+        options: Map<String, Any>?
     ): OperationResult
 
     /**
@@ -78,7 +77,7 @@ interface Driver {
      * @param paths An array representing the storage paths.
      * @param queries A map of query parameters.
      * @param fragment An optional URL fragment.
-     * @param metadata Optional metadata for the operation.
+     * @param options Optional metadata for the operation.
      * @return A [OperationResult] containing the details and state of the mutation operation.
      */
     fun update(
@@ -86,7 +85,7 @@ interface Driver {
         paths: Array<String>,
         queries: Map<String, String>,
         fragment: String?,
-        metadata: Map<String, String>?
+        options: Map<String, Any>?
     ): OperationResult
 
     /**
@@ -111,13 +110,13 @@ interface Driver {
      * @param paths An array representing the storage paths.
      * @param queries A map of query parameters.
      * @param fragment An optional URL fragment.
-     * @param metadata Optional metadata for the removal operation.
+     * @param options Optional metadata for the removal operation.
      */
     fun delete(
         paths: Array<String>,
         queries: Map<String, String>,
         fragment: String?,
-        metadata: Map<String, String>?
+        options: Map<String, Any>?
     )
 
     /**

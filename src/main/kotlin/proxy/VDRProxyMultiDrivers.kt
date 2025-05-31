@@ -48,7 +48,7 @@ class VDRProxyMultiDrivers(
                 }."
     )
 
-    override fun create(data: ByteArray, metadata: Map<String, String>): String {
+    override fun create(data: ByteArray, options: Map<String, Any>): String {
         if (drivers.isEmpty()) {
             throw NoDriversException()
         }
@@ -62,24 +62,26 @@ class VDRProxyMultiDrivers(
             identifier = driver.identifier
             type = driver.family
             version = driver.version
-            operationResult = driver.create(data, metadata)
+            operationResult = driver.create(data, options)
         } else {
-            val driver = processDriver(metadata)
+            val driver = processDriver(options)
             identifier = driver.identifier
             type = driver.family
             version = driver.version
-            operationResult = driver.create(data, metadata)
+            operationResult = driver.create(data, options)
         }
 
+        val isMutable = if (options.isMutable()) "1" else "0"
+
         return urlManager.create(
-            arrayOf(type, identifier, version) + operationResult.paths,
-            operationResult.queries,
+            operationResult.paths,
+            mapOf(Pair("drf", type), Pair("drid", identifier), Pair("drv", version), Pair("m", isMutable)) + operationResult.queries,
             operationResult.fragment,
             operationResult.publicKeys
         )
     }
 
-    override fun update(data: ByteArray, url: String, metadata: Map<String, String>): String? {
+    override fun update(data: ByteArray, url: String, options: Map<String, Any>): String? {
         val resolvedUrl = urlManager.resolve(url)
         if (drivers.isEmpty()) {
             throw NoDriversException()
@@ -98,7 +100,7 @@ class VDRProxyMultiDrivers(
                 resolvedUrl.paths,
                 resolvedUrl.queries,
                 resolvedUrl.fragment,
-                metadata
+                options
             )
         } else {
             val driver = processDriver(resolvedUrl.queries)
@@ -110,13 +112,13 @@ class VDRProxyMultiDrivers(
                 resolvedUrl.paths,
                 resolvedUrl.queries,
                 resolvedUrl.fragment,
-                metadata
+                options
             )
         }
 
         val newURL = urlManager.create(
-            arrayOf(type, identifier, version) + operationResult.paths,
-            operationResult.queries,
+            operationResult.paths,
+            mapOf(Pair("drf", type), Pair("drid", identifier), Pair("drv", version)) + operationResult.queries,
             operationResult.fragment,
             operationResult.publicKeys
         )
@@ -152,7 +154,7 @@ class VDRProxyMultiDrivers(
         }
     }
 
-    override fun delete(url: String, metadata: Map<String, String>) {
+    override fun delete(url: String, options: Map<String, Any>) {
         val resolvedUrl = urlManager.resolve(url)
         if (drivers.isEmpty()) {
             throw NoDriversException()
@@ -163,7 +165,7 @@ class VDRProxyMultiDrivers(
                 resolvedUrl.paths,
                 resolvedUrl.queries,
                 resolvedUrl.fragment,
-                metadata
+                options
             )
         } else {
             val driver = processDriver(resolvedUrl.queries)
@@ -171,7 +173,7 @@ class VDRProxyMultiDrivers(
                 resolvedUrl.paths,
                 resolvedUrl.queries,
                 resolvedUrl.fragment,
-                metadata
+                options
             )
         }
     }
@@ -209,26 +211,26 @@ class VDRProxyMultiDrivers(
      * @return The matching [Driver] implementation.
      * @throws NoDriverWithThisSpecificationsException if no matching driver is found.
      */
-    private fun processDriver(metadata: Map<String, String>): Driver {
-        val driverIdentifier = metadata["drid"]
-        val driverType = metadata["drf"]
+    private fun processDriver(metadata: Map<String, Any>): Driver {
+        val driverIdentifier = metadata["drid"] as? String
+        val driverType = metadata["drf"] as? String
 
         when {
-            driverType != null -> {
-                return  drivers.firstOrNull {
-                    it.family == driverType
-                } ?: throw NoDriverWithThisSpecificationsException(
-                    null,
-                    driverType,
-                    drivers.map { Pair(it.identifier, it.family) }.toTypedArray()
-                )
-            }
             driverIdentifier != null && driverType != null -> {
                 return  drivers.firstOrNull {
                     it.identifier == driverIdentifier &&
                             it.family == driverType
                 } ?: throw NoDriverWithThisSpecificationsException(
                     driverIdentifier,
+                    driverType,
+                    drivers.map { Pair(it.identifier, it.family) }.toTypedArray()
+                )
+            }
+            driverType != null -> {
+                return drivers.firstOrNull {
+                    it.family == driverType
+                } ?: throw NoDriverWithThisSpecificationsException(
+                    null,
                     driverType,
                     drivers.map { Pair(it.identifier, it.family) }.toTypedArray()
                 )
@@ -244,11 +246,22 @@ class VDRProxyMultiDrivers(
             }
             else -> {
                 throw NoDriverWithThisSpecificationsException(
-                    driverIdentifier,
-                    driverType,
+                    null,
+                    null,
                     drivers.map { Pair(it.identifier, it.family) }.toTypedArray()
                 )
             }
         }
     }
+
+    private fun Map<String, *>.driverIdentifier(): String? =
+        (this["drid"] as? String)?.takeUnless { it.isBlank() }
+
+    private fun Map<String, *>.driverFamily(): String? =
+        (this["drf"] as? String)?.takeUnless { it.isBlank() }
+
+    private fun Map<String, *>.driverVersion(): String? =
+        (this["drv"] as? String)?.takeUnless { it.isBlank() }
+
+    private fun Map<String, *>.isMutable(): Boolean = this["m"] as? Boolean ?: false
 }
