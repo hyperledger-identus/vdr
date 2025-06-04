@@ -21,20 +21,20 @@ interface VDR {
      * Creates data in the registry.
      *
      * @param data The data to store as a byte array.
-     * @param metadata A map containing additional metadata.
+     * @param options A map containing additional metadata.
      * @return A [String] representing the URL or identifier where the data is stored.
      */
-    fun create(data: ByteArray, metadata: Map<String, String>): String
+    fun create(data: ByteArray, options: Map<String, Any>): String
 
     /**
      * Updates the data at the given URL.
      *
      * @param data The new data as a byte array.
      * @param url The URL identifier for the data to be mutated.
-     * @param metadata A map containing additional metadata.
+     * @param options A map containing additional metadata.
      * @return A [String]? representing the new URL or identifier after updates, or null if not applicable.
      */
-    fun update(data: ByteArray, url: String, metadata: Map<String, String>): String?
+    fun update(data: ByteArray, url: String, options: Map<String, Any>): String?
 
     /**
      * Retrieves data from the registry.
@@ -48,9 +48,9 @@ interface VDR {
      * Removes data from the registry.
      *
      * @param url The URL or identifier of the data to be removed.
-     * @param metadata A map containing additional metadata that might be used for logging or verification.
+     * @param options A map containing additional metadata that might be used for logging or verification.
      */
-    fun delete(url: String, metadata: Map<String, String>)
+    fun delete(url: String, options: Map<String, Any>)
 
     /**
      * Verifies the integrity and authenticity of the data associated with the given URL.

@@ -1,32 +1,31 @@
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import java.security.PublicKey
 import java.util.UUID
 import proxy.VDRProxyMultiDrivers
 import drivers.InMemoryDriver
 import org.junit.jupiter.api.assertThrows
-import urlManagers.LocalhostUrlManager
+import urlManagers.BaseUrlManager
 
 class VDRProxyMultiDriversTest {
 
-    private lateinit var urlManager: LocalhostUrlManager
+    private lateinit var urlManager: BaseUrlManager
     private lateinit var driver1: InMemoryDriver
     private lateinit var driver2: InMemoryDriver
     private lateinit var vdrProxy: VDRProxyMultiDrivers
 
     @BeforeEach
     fun setUp() {
-        urlManager = LocalhostUrlManager()
+        urlManager = BaseUrlManager("http://localhost")
         driver1 = InMemoryDriver(
             identifier = "driver1",
-            type = "cardano",
+            family = "cardano",
             version = "1.0",
             supportedVersions = arrayOf("1.0", "1.1")
         )
         driver2 = InMemoryDriver(
             identifier = "driver2",
-            type = "typeB",
+            family = "typeB",
             version = "2.0",
             supportedVersions = arrayOf("2.0")
         )
@@ -53,12 +52,12 @@ class VDRProxyMultiDriversTest {
     fun `store should store data using single driver and return correct URL`() {
         val driver = InMemoryDriver(
             identifier = "driver1",
-            type = "cardano",
+            family = "cardano",
             version = "1.0",
             supportedVersions = arrayOf("1.0", "1.1")
         )
         val vdrProxyTest = VDRProxyMultiDrivers(
-            urlManager = LocalhostUrlManager(),
+            urlManager = BaseUrlManager("http://localhost"),
             drivers = arrayOf(driver),
             identifier = "vdrProxy",
             version = "1.0"
@@ -67,7 +66,7 @@ class VDRProxyMultiDriversTest {
         val data = "Sample Data".toByteArray()
         val resultUrl = vdrProxyTest.create(data, emptyMap())
 
-        val storedUuid = resultUrl.split("?")[1].split("&").find { it.startsWith("dvrId=") }?.split("=")?.get(1)
+        val storedUuid = resultUrl.split("?")[1].split("&").find { it.startsWith("drid=") }?.split("=")?.get(1)
         assertNotNull(storedUuid)
         assertFalse(driver.storage.isEmpty())
     }
@@ -89,7 +88,7 @@ class VDRProxyMultiDriversTest {
         val uuid = UUID.randomUUID().toString()
         driver1.storage[uuid] = data
 
-        val url = "http://localhost/path?dvrId=driver1#${uuid}"
+        val url = "http://localhost/path?drid=driver1#${uuid}"
         val result = vdrProxy.read(url)
 
         assertArrayEquals(data, result)
@@ -101,7 +100,7 @@ class VDRProxyMultiDriversTest {
         val uuid = UUID.randomUUID().toString()
         driver1.storage[uuid] = data
 
-        val url = "http://localhost/path?dvrId=driver1#${uuid}"
+        val url = "http://localhost/path?drid=driver1#${uuid}"
         vdrProxy.delete(url, emptyMap())
 
         assertFalse(driver1.storage.containsKey(uuid))

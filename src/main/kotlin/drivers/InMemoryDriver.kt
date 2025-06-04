@@ -28,7 +28,7 @@ class InMemoryDriver(
 
     override fun create(
         data: ByteArray,
-        metadata: Map<String, String>?
+        options: Map<String, Any>?
     ): Driver.OperationResult {
         val uuid = UUID.randomUUID().toString()
         storage += mutableMapOf(Pair(uuid, data))
@@ -37,7 +37,7 @@ class InMemoryDriver(
             UUID.randomUUID().toString(),
             Driver.OperationState.SUCCESS,
             emptyArray(),
-            mapOf(Pair("blockNumber", "0000000000")),
+            emptyMap(),
             uuid,
             null,
             null
@@ -49,7 +49,7 @@ class InMemoryDriver(
         paths: Array<String>,
         queries: Map<String, String>,
         fragment: String?,
-        metadata: Map<String, String>?
+        options: Map<String, Any>?
     ): Driver.OperationResult {
         if(fragment != null) {
             storage += mutableMapOf(Pair(fragment, data))
@@ -58,7 +58,7 @@ class InMemoryDriver(
                 UUID.randomUUID().toString(),
                 Driver.OperationState.SUCCESS,
                 emptyArray(),
-                mapOf(Pair("blockNumber", "0000000000")),
+                emptyMap(),
                 fragment,
                 null,
                 null
@@ -85,7 +85,7 @@ class InMemoryDriver(
         paths: Array<String>,
         queries: Map<String, String>,
         fragment: String?,
-        metadata: Map<String, String>?
+        options: Map<String, Any>?
     ) {
         if(fragment != null) {
             storage.remove(fragment)

@@ -3,6 +3,7 @@ package urlManagers
 import interfaces.URLManager
 import java.net.URL
 import java.security.PublicKey
+import java.util.Base64
 
 /**
  * LocalhostUrlManager is an example implementation of the [URLManager] interface.
@@ -11,9 +12,9 @@ import java.security.PublicKey
  * @property baseURL The base URL used in constructing complete URLs.
  * @property type A string representing the type of URL manager. Default is "Localhost".
  */
-class LocalhostUrlManager(
-    val baseURL: String = "http://localhost",
-    override val type: String = "Localhost"
+class BaseUrlManager(
+    val baseURL: String,
+    override val type: String = "BaseURL"
 ): URLManager {
 
     override fun create(
@@ -22,7 +23,15 @@ class LocalhostUrlManager(
         fragment: String?,
         publicKeys: Array<PublicKey>?
     ): String {
-        val queryString = queries.entries.joinToString("&") { "${it.key}=${it.value}" }
+        var finalQueries = queries.toMutableMap()
+        val pkQueries = publicKeys?.toBase64UrlMap()
+        if (pkQueries != null) {
+            finalQueries += pkQueries
+        }
+        val queryString = finalQueries.entries.joinToString("&") {
+            "${it.key}=${it.value}"
+        }
+
         val path = paths.joinToString("/")
 
         val url = if (fragment.isNullOrEmpty()) {
@@ -55,7 +64,13 @@ class LocalhostUrlManager(
         )
     }
 
-    override fun canResolve(url: String): Boolean {
-        TODO("Not yet implemented")
+    override fun canResolve(url: String): Boolean = runCatching { resolve(url) }.isSuccess
+}
+
+fun Array<PublicKey>.toBase64UrlMap(): Map<String, String> {
+    val enc = Base64.getUrlEncoder().withoutPadding()
+
+    return withIndex().associate { (i, k) ->
+        "pk${i + 1}" to enc.encodeToString(k.encoded)
     }
 }

@@ -1,10 +1,10 @@
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import urlManagers.LocalhostUrlManager
+import urlManagers.BaseUrlManager
 
 class LocalhostUrlManagerTest {
 
-    private val urlManager = LocalhostUrlManager()
+    private val urlManager = BaseUrlManager("http://localhost")
 
     @Test
     fun `createNew should construct URL without fragment`() {

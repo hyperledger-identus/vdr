@@ -13,7 +13,7 @@ class InMemoryDriverTest {
     fun setUp() {
         driver = InMemoryDriver(
             identifier = "test-driver",
-            type = "memory",
+            family = "memory",
             version = "1.0",
             supportedVersions = arrayOf("1.0", "1.1")
         )
@@ -23,7 +23,7 @@ class InMemoryDriverTest {
     fun `store should add data to storage and return a valid StoreResult`() {
         val data = "Sample Data".toByteArray()
 
-        val result = driver.create(data, metadata = null)
+        val result = driver.create(data, options = null)
 
         assertEquals(Driver.OperationState.SUCCESS, result.state)
         assertTrue(driver.storage.containsKey(result.fragment))
@@ -54,7 +54,7 @@ class InMemoryDriverTest {
         val uuid = UUID.randomUUID().toString()
         driver.storage[uuid] = data
 
-        driver.delete(paths = arrayOf(), queries = emptyMap(), fragment = uuid, metadata = null)
+        driver.delete(paths = arrayOf(), queries = emptyMap(), fragment = uuid, options = null)
 
         assertFalse(driver.storage.containsKey(uuid))
     }
@@ -62,7 +62,7 @@ class InMemoryDriverTest {
     @Test
     fun `remove should throw DataCouldNotBeFoundException when fragment is null`() {
         assertThrows(InMemoryDriver.DataCouldNotBeFoundException::class.java) {
-            driver.delete(paths = arrayOf(), queries = emptyMap(), fragment = null, metadata = null)
+            driver.delete(paths = arrayOf(), queries = emptyMap(), fragment = null, options = null)
         }
     }
 }
