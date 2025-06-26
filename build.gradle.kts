@@ -1,4 +1,4 @@
-val publishedId: String = "org.hyperledger.identus.vdr"
+val publishedId: String = "org.hyperledger.identus"
 
 plugins {
     id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
@@ -9,7 +9,7 @@ plugins {
 }
 
 group = publishedId
-version = "0.1.0"
+version = project.findProperty("releaseVersion") ?: "0.1.0"
 
 repositories { mavenCentral() }
 
@@ -98,25 +98,17 @@ publishing {
 
     repositories {
         mavenLocal()
-
-        maven {
-            name = "ossrh"
-            url = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
-            credentials {
-                username = findProperty("ossrhUsername") as String? ?: System.getenv("OSSRH_USER")
-                password = findProperty("ossrhPassword") as String? ?: System.getenv("OSSRH_PASS")
-            }
-        }
     }
 }
 
-nexusPublishing {
+ nexusPublishing {
     repositories {
+        // see https://central.sonatype.org/publish/publish-portal-ossrh-staging-api/#configuration
         sonatype {
-            nexusUrl.set(uri("https://oss.sonatype.org/service/local/"))
-            snapshotRepositoryUrl.set(uri("https://oss.sonatype.org/content/repositories/releases/"))
+            nexusUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/service/local/"))
+            snapshotRepositoryUrl.set(uri("https://central.sonatype.com/repository/maven-snapshots/"))
             username.set(System.getenv("OSSRH_USERNAME"))
             password.set(System.getenv("OSSRH_PASSWORD"))
         }
     }
-}
+ }
