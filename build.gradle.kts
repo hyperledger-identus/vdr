@@ -14,12 +14,35 @@ version = "0.1.0"
 repositories { mavenCentral() }
 
 dependencies {
+    // classpath("app.fmgp:did-method-prism_3:0.1.0-M26+36-c22fc84a+20250627-1757-SNAPSHOT")
+     implementation("app.fmgp:did-method-prism_3:0.1.0-M26")
+
+    implementation(files("/Users/fabio/.ivy2/local/app.fmgp/did-method-prism_3/0.1.0-M26+36-c22fc84a+20250627-1757-SNAPSHOT/jars/did-method-prism_3.jar"))
+    implementation(files("/Users/fabio/.ivy2/local/app.fmgp/multiformats_3/0.1.0-M26+36-c22fc84a+20250627-1757-SNAPSHOT/jars/multiformats_3.jar"))
+    implementation("com.bloxbean.cardano:cardano-client-backend-blockfrost:0.6.4")
+    implementation("com.bloxbean.cardano:cardano-client-lib:0.6.4")
+    // implementation("com.github.poslegm:munit-zio_3:0.4.0")
+    implementation("com.google.crypto.tink:tink:1.17.0")
+    implementation("com.google.protobuf:protobuf-java:4.29.5:")
+    implementation("com.nimbusds:nimbus-jose-jwt:10.3")
+    implementation("com.thesamet.scalapb:scalapb-runtime_3:0.11.17")
+    implementation("dev.zio:zio-http_3:3.3.3")
+    implementation("io.bullet:borer-core_3:1.16.1")
+    implementation("org.bouncycastle:bcpkix-jdk18on:1.80")
+    implementation("org.bouncycastle:bcprov-jdk18on:1.80")
+    implementation("org.hyperledger.identus.apollo:apollo-jvm:1.4.5")
+    implementation("org.scala-lang:scala3-library_3:3.3.6")
+    // implementation("pkg:maven/org.scalameta/munit_3@1.1.1")
+
+    
+
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("com.zaxxer:HikariCP:6.3.0")
     testImplementation("com.h2database:h2:2.3.232")
     testImplementation("org.postgresql:postgresql:42.7.3")
     testImplementation("org.testcontainers:postgresql:1.19.6")
     testImplementation("org.testcontainers:junit-jupiter:1.19.6")
+    // testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testRuntimeOnly("org.slf4j:slf4j-simple:2.0.13")
 }
 
