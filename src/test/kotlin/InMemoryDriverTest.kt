@@ -49,6 +49,13 @@ class InMemoryDriverTest {
     }
 
     @Test
+    fun `get should throw DataCouldNotBeFoundException when data is not found`() {
+        assertThrows(InMemoryDriver.DataCouldNotBeFoundException::class.java) {
+            driver.read(paths = arrayOf(), queries = emptyMap(), fragment = "hello", publicKeys = null)
+        }
+    }
+
+    @Test
     fun `remove should delete stored data when a valid fragment is provided`() {
         val data = "Sample Data".toByteArray()
         val uuid = UUID.randomUUID().toString()

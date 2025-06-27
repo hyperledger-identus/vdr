@@ -38,6 +38,7 @@ class DatabaseDriver(
 
     private fun initialiseSchema() {
         dataSource.connection.use { conn ->
+            conn.setAutoCommit(true)
             conn.prepareStatement(
                 """
                 CREATE TABLE IF NOT EXISTS storage (
@@ -52,6 +53,7 @@ class DatabaseDriver(
     override fun create(data: ByteArray, options: Map<String, Any>?): Driver.OperationResult {
         val uuid = UUID.randomUUID().toString()
         dataSource.connection.use { conn ->
+            conn.setAutoCommit(true)
             conn.prepareStatement("INSERT INTO storage(id, data) VALUES(?, ?)").use { ps ->
                 ps.setString(1, uuid)
                 ps.setBytes(2, data)
@@ -79,6 +81,7 @@ class DatabaseDriver(
     ): Driver.OperationResult {
         val id = fragment ?: throw DataCouldNotBeFoundException()
         val rowsUpdated = dataSource.connection.use { conn ->
+            conn.setAutoCommit(true)
             conn.prepareStatement("UPDATE storage SET data = ? WHERE id = ?").use { ps ->
                 ps.setBytes(1, data)
                 ps.setString(2, id)
@@ -106,6 +109,7 @@ class DatabaseDriver(
     ): ByteArray {
         val id = fragment ?: throw DataCouldNotBeFoundException()
         dataSource.connection.use { conn ->
+            conn.setAutoCommit(true)
             conn.prepareStatement("SELECT data FROM storage WHERE id = ?").use { ps ->
                 ps.setString(1, id)
                 ps.executeQuery().use { rs ->
@@ -124,6 +128,7 @@ class DatabaseDriver(
     ) {
         val id = fragment ?: throw DataCouldNotBeFoundException()
         val rowsDeleted = dataSource.connection.use { conn ->
+            conn.setAutoCommit(true)
             conn.prepareStatement("DELETE FROM storage WHERE id = ?").use { ps ->
                 ps.setString(1, id)
                 ps.executeUpdate()

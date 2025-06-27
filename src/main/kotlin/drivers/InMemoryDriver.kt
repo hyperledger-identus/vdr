@@ -4,6 +4,8 @@ import interfaces.Driver
 import interfaces.Proof
 import java.security.PublicKey
 import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentMap
 
 /**
  * InMemoryDriver is an example implementation of the [Driver] interface.
@@ -24,14 +26,14 @@ class InMemoryDriver(
      */
     class DataCouldNotBeFoundException: Exception("Could not find the data")
 
-    var storage: MutableMap<String, ByteArray> = mutableMapOf()
+    val storage: ConcurrentMap<String, ByteArray> = ConcurrentHashMap()
 
     override fun create(
         data: ByteArray,
         options: Map<String, Any>?
     ): Driver.OperationResult {
         val uuid = UUID.randomUUID().toString()
-        storage += mutableMapOf(Pair(uuid, data))
+        storage.putIfAbsent(uuid, data)
 
         return Driver.OperationResult(
             UUID.randomUUID().toString(),
@@ -51,21 +53,21 @@ class InMemoryDriver(
         fragment: String?,
         options: Map<String, Any>?
     ): Driver.OperationResult {
-        if(fragment != null) {
-            storage += mutableMapOf(Pair(fragment, data))
-
-            return Driver.OperationResult(
-                UUID.randomUUID().toString(),
-                Driver.OperationState.SUCCESS,
-                emptyArray(),
-                emptyMap(),
-                fragment,
-                null,
-                null
-            )
-        } else {
+        val fragment: String = fragment ?: throw DataCouldNotBeFoundException()
+        if (!storage.contains(fragment)) {
             throw DataCouldNotBeFoundException()
         }
+        storage.replace(fragment, data)
+
+        return Driver.OperationResult(
+            UUID.randomUUID().toString(),
+            Driver.OperationState.SUCCESS,
+            emptyArray(),
+            emptyMap(),
+            fragment,
+            null,
+            null
+        )
     }
 
     override fun read(
@@ -74,11 +76,8 @@ class InMemoryDriver(
         fragment: String?,
         publicKeys: Array<PublicKey>?
     ): ByteArray {
-        if(fragment != null) {
-            return storage.getValue(fragment)
-        } else {
-            throw DataCouldNotBeFoundException()
-        }
+        val fragment: String = fragment ?: throw DataCouldNotBeFoundException()
+        return storage[fragment] ?: throw DataCouldNotBeFoundException()
     }
 
     override fun delete(
@@ -87,11 +86,8 @@ class InMemoryDriver(
         fragment: String?,
         options: Map<String, Any>?
     ) {
-        if(fragment != null) {
-            storage.remove(fragment)
-        } else {
-            throw DataCouldNotBeFoundException()
-        }
+        val fragment: String = fragment ?: throw DataCouldNotBeFoundException()
+        storage.remove(fragment)
     }
 
     override fun verify(paths: Array<String>,
