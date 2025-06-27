@@ -48,6 +48,7 @@ publishing {
             pom {
                 name.set("Identus VDR")
                 description.set(projectDescription)
+                url.set("https://github.com/hyperledger-identus/vdr")
                 organization {
                     name.set("Hyperledger")
                     url.set("https://www.hyperledger.org/")
