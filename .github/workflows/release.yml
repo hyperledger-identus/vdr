@@ -11,9 +11,44 @@ on:
       - 'v*'
 
 jobs:
+  generate-changelog:
+    name: Generate release changelog
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate a changelog
+        uses: orhun/git-cliff-action@v4
+        id: git-cliff
+        with:
+          config: cliff.toml
+          args: --bump
+        env:
+          OUTPUT: CHANGELOG.md
+
+      - name: Commit and tag
+        run: |
+          git checkout ${GITHUB_REF_NAME}
+          git config user.name 'hyperledger-bot'
+          git config user.email 'hyperledger-bot@hyperledger.org'
+          set +e
+          git add CHANGELOG.md
+          set -e
+          git commit --allow-empty -m "chore(release): update changelog" -m "Signed-off-by: Hyperledger Bot <hyperledger-bot@hyperledger.org>"
+          git push https://${{ secrets.IDENTUS_CI }}@github.com/${GITHUB_REPOSITORY}.git ${GITHUB_REF_NAME}
+          # git tag "v${{ steps.git-cliff.outputs.version }}"
+          # git push https://${{ secrets.IDENTUS_CI }}@github.com/${GITHUB_REPOSITORY}.git "v${{ steps.git-cliff.outputs.version }}"
+
   publish:
     name: Publish to Maven Central
     runs-on: ubuntu-latest
+    needs:
+      - generate-changelog
 
     steps:
       - name: Checkout code
@@ -35,10 +70,10 @@ jobs:
           git_config_global: true
           git_tag_gpgsign: false
 
-      - name: Publish to Maven Central
-        run: ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository -PreleaseVersion=${{ github.event.inputs.tag }}
-        env:
-          OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
-          OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
-          OSSRH_GPG_SECRET_KEY: ${{ secrets.HYP_BOT_GPG_PRIVATE }}
-          OSSRH_GPG_SECRET_KEY_PASSWORD: ${{ secrets.HYP_BOT_GPG_PASSWORD }}
+      # - name: Publish to Maven Central
+      #   run: ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository -PreleaseVersion=${{ github.event.inputs.tag }}
+      #   env:
+      #     OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+      #     OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+      #     OSSRH_GPG_SECRET_KEY: ${{ secrets.HYP_BOT_GPG_PRIVATE }}
+      #     OSSRH_GPG_SECRET_KEY_PASSWORD: ${{ secrets.HYP_BOT_GPG_PASSWORD }}
