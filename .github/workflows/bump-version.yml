@@ -1,0 +1,36 @@
+name: Bump version
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  bump-version:
+    name: Bump version and generate changelog
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate a changelog
+        uses: orhun/git-cliff-action@v4
+        id: git-cliff
+        with:
+          config: cliff.toml
+          args: --bump
+        env:
+          OUTPUT: CHANGELOG.md
+
+      - name: Commit
+        run: |
+          git checkout ${GITHUB_REF_NAME}
+          git config user.name 'hyperledger-bot'
+          git config user.email 'hyperledger-bot@hyperledger.org'
+          set +e
+          git add CHANGELOG.md
+          set -e
+          git commit --allow-empty -m "chore(release): update changelog for version v${{ steps.git-cliff.outputs.version }}" -m "Signed-off-by: Hyperledger Bot <hyperledger-bot@hyperledger.org>"
+          git push https://${{ secrets.IDENTUS_CI }}@github.com/${GITHUB_REPOSITORY}.git ${GITHUB_REF_NAME}
