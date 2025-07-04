@@ -2,23 +2,68 @@ val publishedId: String = "org.hyperledger.identus.vdr"
 
 plugins {
     id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
-    kotlin("jvm") version "1.9.23"
+    kotlin("jvm") version "2.1.21"
     `java-library`
     `maven-publish`
     signing
+    application
+    scala //https://docs.gradle.org/current/userguide/scala_plugin.html
 }
+
+repositories { mavenCentral() }
+
+scala { scalaVersion =  "3.3.6" }
+application { mainClass = "demo.App" }
 
 group = publishedId
 version = "0.1.0"
 
-repositories { mavenCentral() }
+
+tasks.withType<ScalaCompile> {
+    scalaCompileOptions.apply {        additionalParameters = listOf( "-feature" )}
+}
+
+// https://docs.gradle.org/current/samples/sample_building_scala_applications.html
+
+
+//configurations {
+//    create("scalaCompilerPlugin")
+//}
+//
+//tasks.withType<ScalaCompile>().configureEach {
+//    // Set compiler classpath to use Scala 3 compiler
+//    val scalaCompilerCp = configurations["scalaCompilerPlugin"]
+//    scalaClasspath = scalaCompilerCp
+//
+//    scalaCompileOptions.additionalParameters = listOf("-Xfatal-warnings")
+//}
+
+
+ tasks.named("compileScala").configure {
+     dependsOn("compileKotlin")
+
+     doFirst {
+         println("Adding Kotlin output to Scala classpath")
+         val kotlinOutputDir = tasks.named("compileKotlin").get().outputs.files
+
+         val scalaCompileTask = this as ScalaCompile
+         scalaCompileTask.classpath = scalaCompileTask.classpath.plus(kotlinOutputDir)
+     }
+ }
+
 
 dependencies {
-    // classpath("app.fmgp:did-method-prism_3:0.1.0-M26+36-c22fc84a+20250627-1757-SNAPSHOT")
-     implementation("app.fmgp:did-method-prism_3:0.1.0-M26")
 
-    implementation(files("/Users/fabio/.ivy2/local/app.fmgp/did-method-prism_3/0.1.0-M26+36-c22fc84a+20250627-1757-SNAPSHOT/jars/did-method-prism_3.jar"))
-    implementation(files("/Users/fabio/.ivy2/local/app.fmgp/multiformats_3/0.1.0-M26+36-c22fc84a+20250627-1757-SNAPSHOT/jars/multiformats_3.jar"))
+    // Kotlin
+    // implementation(kotlin("stdlib"))
+
+    // Scala
+    // implementation("org.scala-lang:scala3-library_3:3.3.6")
+    // add("scalaCompilerPlugin", "org.scala-lang:scala3-compiler_3:3.3.6")
+
+    implementation(files("/Users/fabio/.ivy2/local/app.fmgp/did_3/0.1.0-M26+40-36c0cb8b+20250702-1748-SNAPSHOT/jars/did_3.jar"))
+    implementation(files("/Users/fabio/.ivy2/local/app.fmgp/did-method-prism_3/0.1.0-M26+40-36c0cb8b+20250702-1748-SNAPSHOT/jars/did-method-prism_3.jar"))
+    implementation(files("/Users/fabio/.ivy2/local/app.fmgp/multiformats_3/0.1.0-M26+40-36c0cb8b+20250702-1748-SNAPSHOT/jars/multiformats_3.jar"))
     implementation("com.bloxbean.cardano:cardano-client-backend-blockfrost:0.6.4")
     implementation("com.bloxbean.cardano:cardano-client-lib:0.6.4")
     // implementation("com.github.poslegm:munit-zio_3:0.4.0")
@@ -31,10 +76,9 @@ dependencies {
     implementation("org.bouncycastle:bcpkix-jdk18on:1.80")
     implementation("org.bouncycastle:bcprov-jdk18on:1.80")
     implementation("org.hyperledger.identus.apollo:apollo-jvm:1.4.5")
-    implementation("org.scala-lang:scala3-library_3:3.3.6")
     // implementation("pkg:maven/org.scalameta/munit_3@1.1.1")
 
-    
+
 
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("com.zaxxer:HikariCP:6.3.0")
@@ -49,6 +93,7 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
 }
+
 kotlin {
     jvmToolchain(19)
 }
