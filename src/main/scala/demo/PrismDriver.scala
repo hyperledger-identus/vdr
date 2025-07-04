@@ -52,7 +52,7 @@ object PRISMDriver {
     didPrism = didPrism,
     vdrKey = vdrKey,
     keyName = "vdr1",
-    workdir = "../../prism-vdr/mainnet"
+    workdir = "../../prism-vdr/mainnet",
   )
 }
 
@@ -77,7 +77,8 @@ case class PRISMDriver(
       workdir = workdir,
       didPrism,
       keyName,
-      vdrKey
+      vdrKey,
+      maybeMsgCIP20 = Some("PRISMDriver"),
     )
 
   genericVDRDriver.initState
