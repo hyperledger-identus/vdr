@@ -61,9 +61,9 @@ dependencies {
     // implementation("org.scala-lang:scala3-library_3:3.3.6")
     // add("scalaCompilerPlugin", "org.scala-lang:scala3-compiler_3:3.3.6")
 
-    implementation(files("/Users/fabio/.ivy2/local/app.fmgp/did_3/0.1.0-M26+40-36c0cb8b+20250704-1712-SNAPSHOT/jars/did_3.jar"))
-    implementation(files("/Users/fabio/.ivy2/local/app.fmgp/did-method-prism_3/0.1.0-M26+40-36c0cb8b+20250704-1712-SNAPSHOT/jars/did-method-prism_3.jar"))
-    implementation(files("/Users/fabio/.ivy2/local/app.fmgp/multiformats_3/0.1.0-M26+40-36c0cb8b+20250704-1712-SNAPSHOT/jars/multiformats_3.jar"))
+    implementation(files("/Users/fabio/.ivy2/local/app.fmgp/did_3/0.1.0-M26+46-56f47b23+20250706-2122-SNAPSHOT/jars/did_3.jar"))
+    implementation(files("/Users/fabio/.ivy2/local/app.fmgp/did-method-prism_3/0.1.0-M26+46-56f47b23+20250706-2122-SNAPSHOT/jars/did-method-prism_3.jar"))
+    implementation(files("/Users/fabio/.ivy2/local/app.fmgp/multiformats_3/0.1.0-M26+46-56f47b23+20250706-2122-SNAPSHOT/jars/multiformats_3.jar"))
     implementation("com.bloxbean.cardano:cardano-client-backend-blockfrost:0.6.4")
     implementation("com.bloxbean.cardano:cardano-client-lib:0.6.4")
     // implementation("com.github.poslegm:munit-zio_3:0.4.0")

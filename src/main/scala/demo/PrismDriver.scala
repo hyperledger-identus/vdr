@@ -47,7 +47,7 @@ object PRISMDriver {
     wallet.secp256k1PrivateKey(0, 1)
 
   def default = PRISMDriver(
-    bfConfig = BlockfrastConfig(token = "preprod9EGSSMf6oWb81qoi8eW65iWaQuHJ1HwB"),
+    bfConfig = BlockfrostConfig(token = "preprod9EGSSMf6oWb81qoi8eW65iWaQuHJ1HwB"),
     wallet = wallet,
     didPrism = didPrism,
     vdrKey = vdrKey,
@@ -57,7 +57,7 @@ object PRISMDriver {
 }
 
 case class PRISMDriver(
-    val bfConfig: BlockfrastConfig,
+    val bfConfig: BlockfrostConfig,
     wallet: CardanoWalletConfig,
     didPrism: DIDPrism,
     vdrKey: KMMECSecp256k1PrivateKey,
@@ -118,11 +118,12 @@ case class PRISMDriver(
         GenericVDRDriver.runProgram(
           for {
             ret <- genericVDRDriver.updateBytesEntry(eventRef, data)
+            (updateEventHash, code, string) = ret
             out = Driver.OperationResult(
-              ret._1.value, // FIXME the identifier MUST be the hash of this event. Not the create one
+              updateEventHash.hex,
               Driver.OperationState.SUCCESS,
-              Array(ret._1.value),
-              Map(("h", ret._1.value)).asJava,
+              Array(eventRef.eventHash.hex),
+              Map(("h", eventRef.eventHash.hex)).asJava,
               null,
               null,
               null
@@ -144,11 +145,12 @@ case class PRISMDriver(
         GenericVDRDriver.runProgram(
           for {
             ret <- genericVDRDriver.deleteBytesEntry(eventRef)
+            (updateEventHash, code, string) = ret
             out = Driver.OperationResult(
-              ret._1.value, // FIXME the identifier MUST be the hash of this event. Not the create one
+              updateEventHash.hex,
               Driver.OperationState.SUCCESS,
-              Array(ret._1.value),
-              Map(("h", ret._1.value)).asJava,
+              Array(eventRef.eventHash.hex),
+              Map(("h", eventRef.eventHash.hex)).asJava,
               null,
               null,
               null
@@ -203,7 +205,7 @@ case class PRISMDriver(
           for {
             vdr <- genericVDRDriver.read(eventRef)
           } yield vdr.data match {
-            case VDR.DataEmpty() => ???
+            case VDR.DataEmpty() => Proof("PrismBlock", Array.empty(), Array.empty()) // TODO proof
             case VDR.DataDeactivated(data) =>
               data match {
                 case VDR.DataEmpty()           => ???
@@ -212,8 +214,7 @@ case class PRISMDriver(
                   Proof(
                     "PrismBlock",
                     byteArray, // Data
-                    Array
-                      .empty() // TODO proof will is a protobuf Array of PRISM events. Should we reuse the PrismBlock?
+                    Array.empty() // TODO proof will is a protobuf Array of PRISM events. Reuse the PrismBlock?
                   )
                 case VDR.DataIPFS(cid)          => ???
                 case VDR.DataStatusList(status) => ???
