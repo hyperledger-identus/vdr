@@ -23,7 +23,7 @@ class BaseUrlManager(
         fragment: String?,
         publicKeys: Array<PublicKey>?
     ): String {
-        var finalQueries = queries.toMutableMap()
+        val finalQueries = queries.toMutableMap()
         val pkQueries = publicKeys?.toBase64UrlMap()
         if (pkQueries != null) {
             finalQueries += pkQueries
