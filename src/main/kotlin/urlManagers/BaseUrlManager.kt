@@ -2,7 +2,6 @@ package urlManagers
 
 import interfaces.URLManager
 import java.net.URI
-import java.net.URL
 import java.security.PublicKey
 import java.util.Base64
 
