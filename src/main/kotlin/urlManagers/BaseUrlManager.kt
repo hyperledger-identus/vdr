@@ -1,6 +1,7 @@
 package urlManagers
 
 import interfaces.URLManager
+import java.net.URI
 import java.net.URL
 import java.security.PublicKey
 import java.util.Base64
@@ -44,7 +45,7 @@ class BaseUrlManager(
     }
 
     override fun resolve(url: String): URLManager.URL {
-        val parsedUrl = URL(url)
+        val parsedUrl = URI(url)
 
         val paths = parsedUrl.path.split("/").filter { it.isNotEmpty() }.toTypedArray()
 
@@ -54,7 +55,7 @@ class BaseUrlManager(
             queryPairs[key] = value
         }
 
-        val fragment = parsedUrl.ref
+        val fragment = parsedUrl.fragment
 
         return URLManager.URL(
             paths = paths,
