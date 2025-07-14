@@ -364,6 +364,37 @@ sequenceDiagram
     V-->>C: Return retrieved data
 ```
 
+#### 6.3.2.1 Resolution of the `vdr` URL scheme
+
+A URL is a string used to locate a resource. When the client encounters a URL,
+they understand how to access the resource by following the steps defined by the protocol in URL scheme.
+
+__Traditional URL scheme__
+
+When the VDR returns a traditional URL scheme like `https://example.com/vdr?drid=cardano`, the client should already understand how to locate the resource by following the steps described by that scheme.
+
+__`vdr` URL scheme__
+
+There are several ways the VDR read interface can be exposed, for example:
+
+- As a library or SDK to retrieve the data (`val data = vdr.read(url)`)
+- As a remote RPC call (`https://<host>/vdr?url=...`)
+
+When the VDR returns URL scheme is `vdr://`, it indicates that the data can be resolved by any instance of the VDR interface,
+and the resolved data should be consistent across all VDR instances as long as the same driver is supported by that instance.
+This is useful for referencing data stored
+behind decentralized storage systems, such as IPFS or blockchain.
+Unlike the HTTP or other traditional RPC protocols, this removes the need to hard-code
+the remote location (e.g. hostname, IP address) which is more suitable for some storage type. 
+
+For example, an issuer creates a credential schema using the IPFS driver, with the URL `vdr://?drf=ipfs&...`.
+The verifier then uses this URL to resolve the schema on his own VDR instance with the IPFS driver. This means the verifier can
+
+- Call his own VDR library with `val data = vdr.read("vdr://?drf=ipfs&...")`
+- Call his own self-hosted VDR RPC with `GET https://<host>/vdr?url=vdr%3A%2F%2F%3Fdrf%3Dipfs`
+
+Either way, the resource return by the VDR should be the same.
+
 ### 6.3.3 Updating and Deleting Data
 
 For **update** and **deleting** operations, the process is similar to read:
@@ -451,31 +482,36 @@ Future versions of the specification will move this registry to a dedicated docu
 1. **Immutable Data HTTP URL**
 - **Example URL:** `http://example.io?drf=cardano&drid=cardanoNode&drv=1.0&m=0`
 
-3. **Example 2: DID URL with Additional Custom Queries**
+2. **Example 2: DID URL with Additional Custom Queries**
 - **Description:**  
   Similar to the first example but as a DID URL and in addition to the basic metadata, two custom driver queries are included: one for block slot (`bs`) and one for block hash (`bh`).
 - **Example URL:** `did:method:abcteads123?drf=cardano&drid=cardanoNode&drv=1.0&h=asdasdasdasdsasa&m=0&bs=100000&bh=asdasdasdassad`
 
-4. **Example 3: FTP URL with Transaction Hash**
+3. **Example 3: FTP URL with Transaction Hash**
 - **Description:**  
   In this case, the data is still immutable and validated by a hash, but a custom query for the transaction hash (`bt`) is provided to help locate the data within a blockchain transaction.
 - **Example URL:** `ftp://?drf=cardano&drid=cardanoNode&drv=1.0&h=asdasdasdasdsasa&m=0&bt=adsadadasdasdaasdsasadas`
 
-5. **Example 4: DID URL for Mutable Data with Digital Signature**
+4. **Example 4: DID URL for Mutable Data with Digital Signature**
 - **Description:**  
   Here, the data is mutable. Instead of a hash, a digital signature (`s`) is used to verify data integrity. The proof type (`pt`) is specified (e.g., `ECDSAwithSHA256`), and the mutable flag (`m`) is set to true.
 - **Example URL:** `did:method:abcteads123?drf=cardano&drid=cardanoNode&drv=1.0&s=sadasdsadasdsad&pt=ECDSAwithSHA256&m=1`
 - **In the event the data is updated:** The digital signature (`s`) will fail and the Holder/Verifier requires to request the proof from the VDR.
 
-6. **Example 5: DID URL with Multiple Services**
+5. **Example 5: DID URL with Multiple Services**
 - **Description:**  
   This example demonstrates a DID URL for a record with multiple services. In addition to the standard driver metadata, it includes a `service` parameter and a `relativeRef` parameter as defined by the W3C DID specification (Section 3.2.1 DID Parameters). The mutable flag (`m`) is set to true.
 - **Example URL:** `did:method:abcteads123?drf=cardano&drid=cardanoNode&drv=1.0&service=agent&relativeRef='/read?retrieveData=true'&m=1`
 -
-7. **Example 6: HTTP URL with Custom Path**
+6. **Example 6: HTTP URL with Custom Path**
 - **Description:**  
   This example demonstrates a HTTP URL with custom Paths, note that the custom paths are after the driver version.
 - **Example URL:** `http://example.io/cardano/cardanoNode/1.0/record/1?h=asdasdasdasdsasa&m=0`
+
+7. **Example 7: VDR URL**
+- **Description:**
+  This example demonstrates a VDR URL. This URL can be used to resolve data on any VDR instance.
+- **Example URL:** `vdr://?drf=cardano&drid=cardanoNode&drv=1.0&m=0`
 
 ### 7.2 Metadata Registry
 
@@ -620,6 +656,23 @@ Overall, while the VDR system leverages advanced cryptographic techniques to mai
 The VDR system is designed to provide a modular, extensible framework for verifiable data operations. By decoupling the storage (Drivers) and URL management (URL Managers) from the core VDR Interface, the system allows seamless integration of diverse storage solutions while ensuring robust error handling and data integrity. Standardized URL query parameters facilitate precise driver selection and data validation, laying the groundwork for a secure and scalable data registry.
 
 Future enhancements, such as the registry for Drivers and URL Managers, will further improve the adaptability and maintainability of the system.
+
+---
+
+## Appendix A: IANA Considerations
+
+### A.1 Uniform Resource Identifier (URI) Schemes Registry
+
+This specification registers the following URI scheme in the IANA
+"Uniform Resource Identifier (URI) Schemes" registry [IANA.URI.Schemes](https://www.iana.org/assignments/uri-schemes/uri-schemes.xhtml).
+
+### A.1.1. vdr
+__URI Scheme__: `vdr`  
+__Description__: Custom scheme used for referencing and resolving VDR entry  
+__Status__: Provisional  
+__Well-Known URI Support__: -  
+__Change Controller__: Hyperledger Identus team (https://github.com/hyperledger-identus)  
+__Reference__: Section 6.3.2.1 of this specification  
 
 ---
 
