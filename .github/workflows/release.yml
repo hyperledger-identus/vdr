@@ -6,6 +6,7 @@ on:
       tag:
         description: 'Tag to release (e.g., 1.0.0)'
         required: false
+# TODO: uncomment this when we preprocess the tag properly. We don't want to release with the "v" prefix to maven
 #  push:
 #    tags:
 #      - 'v*'
