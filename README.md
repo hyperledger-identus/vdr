@@ -364,14 +364,36 @@ sequenceDiagram
     V-->>C: Return retrieved data
 ```
 
-#### 6.3.2.1 Resolution of VDR URL scheme
+#### 6.3.2.1 Resolution of the `vdr` URL scheme
 
-When the URL scheme is `vdr://`, it indicates that the data can be resolved by any instance of the VDR interface,
-and the resolved data should be consistent across all instances. This is useful for referencing data stored
-behind decentralized storage systems, such as IPFS or blockchain backends.
+A URL is a string used to locate a resource. When the client encounters a URL,
+they understand how to access the resource by following the steps defined by the protocol in URL scheme.
+
+__Traditional URL scheme__
+
+When the VDR returns a traditional URL scheme like `https://example.com/vdr?drid=cardano`, the client should already understand how to locate the resource by following the steps described by that scheme.
+
+__`vdr` URL scheme__
+
+There are several ways the VDR read interface can be exposed, for example:
+
+- As a library or SDK to retrieve the data (`val data = vdr.read(url)`)
+- As a remote RPC call (`https://<host>/vdr?url=...`)
+
+When the VDR returns URL scheme is `vdr://`, it indicates that the data can be resolved by any instance of the VDR interface,
+and the resolved data should be consistent across all VDR instances as long as the same driver is supported by that instance.
+This is useful for referencing data stored
+behind decentralized storage systems, such as IPFS or blockchain.
+Unlike the HTTP or other traditional RPC protocols, this removes the need to hard-code
+the remote location (e.g. hostname, IP address) which is more suitable for some storage type. 
 
 For example, an issuer creates a credential schema using the IPFS driver, with the URL `vdr://?drf=ipfs&...`.
-The verifier then uses this URL to resolve the schema on their own self-hosted VDR instance with the IPFS driver.
+The verifier then uses this URL to resolve the schema on his own VDR instance with the IPFS driver. This means the verifier can
+
+- Call his own VDR library with `val data = vdr.read("vdr://?drf=ipfs&...")`
+- Call his own self-hosted VDR RPC with `GET https://<host>/vdr?url=vdr%3A%2F%2F%3Fdrf%3Dipfs`
+
+Either way, the resource return by the VDR should be the same.
 
 ### 6.3.3 Updating and Deleting Data
 
