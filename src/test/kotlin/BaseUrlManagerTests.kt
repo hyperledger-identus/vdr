@@ -1,8 +1,9 @@
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import urlManagers.BaseUrlManager
+import kotlin.test.assertSame
 
-class LocalhostUrlManagerTest {
+class BaseUrlManagerTest {
 
     private val urlManager = BaseUrlManager("http://localhost")
 
@@ -55,5 +56,16 @@ class LocalhostUrlManagerTest {
         val result = urlManager.create(paths, queries, fragment, null)
 
         assertEquals("http://localhost/?", result)
+    }
+
+    @Test
+    fun `resolve should resolve custom url scheme`() {
+        val vdrUrl = "vdr:///resources?foo=bar#hello"
+        val parsedVdrUrl = urlManager.resolve(vdrUrl)
+
+        assertEquals(parsedVdrUrl.paths.toList(), listOf("resources"))
+        assertEquals(parsedVdrUrl.fragment, "hello")
+        assertEquals(parsedVdrUrl.queries, mapOf("foo" to "bar"))
+        assertEquals(parsedVdrUrl.fragment, "hello")
     }
 }

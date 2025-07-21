@@ -1,4 +1,6 @@
-val publishedId: String = "org.hyperledger.identus.vdr"
+val publishedId: String = "org.hyperledger.identus"
+val projectDescription =
+    "Identus VDR - A framework implementation for Verifiable Data Registry (VDR) for Identus Platform"
 
 plugins {
     id("io.github.gradle-nexus.publish-plugin") version "2.0.0"
@@ -16,7 +18,8 @@ scala { scalaVersion =  "3.3.6" }
 application { mainClass = "demo.App" }
 
 group = publishedId
-version = "0.1.0"
+version = project.findProperty("releaseVersion") ?: "0.1.0"
+description = projectDescription
 
 
 tasks.withType<ScalaCompile> {
@@ -104,85 +107,83 @@ java {
 }
 
 publishing {
-    publications.withType<MavenPublication> {
-        groupId = publishedId
-        artifactId = project.name
-        version = project.version.toString()
-        pom {
-            name.set("Identus VDR")
-            description.set("VDR framework implementation for Identus")
-            organization {
-                name.set("Hyperledger")
-                url.set("https://www.hyperledger.org/")
-            }
-            issueManagement {
-                system.set("Github")
+    publications {
+        create<MavenPublication>("mavenJava") {
+            from(components["java"])
+            groupId = publishedId
+            artifactId = project.name
+            version = project.version.toString()
+            pom {
+                name.set("Identus VDR")
+                description.set(projectDescription)
                 url.set("https://github.com/hyperledger-identus/vdr")
-            }
-            licenses {
-                license {
-                    name.set("Apache-2.0")
-                    url.set("https://www.apache.org/licenses/LICENSE-2.0")
+                organization {
+                    name.set("Hyperledger")
+                    url.set("https://www.hyperledger.org/")
                 }
-            }
-            developers {
-                developer {
-                    id.set("amagyar-iohk")
-                    name.set("Allain Magyar")
-                    email.set("allain.magyar@iohk.io")
-                    organization.set("IOG")
-                    roles.add("qc")
+                issueManagement {
+                    system.set("Github")
+                    url.set("https://github.com/hyperledger-identus/vdr")
                 }
-                developer {
-                    id.set("goncalo-frade-iohk")
-                    name.set("Gonçalo Frade")
-                    email.set("goncalo.frade@iohk.io")
-                    organization.set("IOG")
-                    roles.add("developer")
+                licenses {
+                    license {
+                        name.set("Apache-2.0")
+                        url.set("https://www.apache.org/licenses/LICENSE-2.0")
+                    }
                 }
-                developer {
-                    id.set("yshyn-iohk")
-                    name.set("Yurii Shynbuiev")
-                    email.set("yurii.shynbuiev@iohk.io")
-                    organization.set("IOG")
-                    roles.add("developer")
+                developers {
+                    developer {
+                        id.set("amagyar-iohk")
+                        name.set("Allain Magyar")
+                        email.set("allain.magyar@iohk.io")
+                        organization.set("IOG")
+                        roles.add("qc")
+                    }
+                    developer {
+                        id.set("goncalo-frade-iohk")
+                        name.set("Gonçalo Frade")
+                        email.set("goncalo.frade@iohk.io")
+                        organization.set("IOG")
+                        roles.add("developer")
+                    }
+                    developer {
+                        id.set("yshyn-iohk")
+                        name.set("Yurii Shynbuiev")
+                        email.set("yurii.shynbuiev@iohk.io")
+                        organization.set("IOG")
+                        roles.add("developer")
+                    }
                 }
-            }
-            scm {
-                connection.set("scm:git:git://git@github.com/hyperledger-identus/vdr.git")
-                developerConnection.set("scm:git:ssh://git@github.com/hyperledger-identus/vdr.git")
-                url.set("https://github.com/hyperledger-identus/vdr")
-            }
-        }
-
-        signing {
-            useInMemoryPgpKeys(
-                project.findProperty("signing.signingSecretKey") as String? ?: System.getenv("OSSRH_GPG_SECRET_KEY"),
-                project.findProperty("signing.signingSecretKeyPassword") as String? ?: System.getenv("OSSRH_GPG_SECRET_KEY_PASSWORD")
-            )
-            sign(this@withType)
-        }
-    }
-
-    repositories {
-        mavenLocal()
-
-        maven {
-            name = "ossrh"
-            url = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
-            credentials {
-                username = findProperty("ossrhUsername") as String? ?: System.getenv("OSSRH_USER")
-                password = findProperty("ossrhPassword") as String? ?: System.getenv("OSSRH_PASS")
+                scm {
+                    connection.set("scm:git:https://git@github.com/hyperledger-identus/vdr.git")
+                    developerConnection.set("scm:git:https://git@github.com/hyperledger-identus/vdr.git")
+                    url.set("https://github.com/hyperledger-identus/vdr")
+                }
             }
         }
     }
 }
 
+val signingKey = project.findProperty("signing.signingSecretKey") as String?
+    ?: System.getenv("OSSRH_GPG_SECRET_KEY")
+val signingPassword = project.findProperty("signing.signingSecretKeyPassword") as String?
+    ?: System.getenv("OSSRH_GPG_SECRET_KEY_PASSWORD")
+
+if (!signingKey.isNullOrBlank() && !signingPassword.isNullOrBlank()) {
+    signing {
+        useInMemoryPgpKeys(signingKey, signingPassword)
+        sign(publishing.publications["mavenJava"])
+    }
+} else {
+    logger.lifecycle("Signing is skipped because OSSRH_GPG_SECRET_KEY or OSSRH_GPG_SECRET_KEY_PASSWORD is not set.")
+}
+
 nexusPublishing {
     repositories {
+        // see https://central.sonatype.org/publish/publish-portal-ossrh-staging-api/#configuration
         sonatype {
-            nexusUrl.set(uri("https://oss.sonatype.org/service/local/"))
-            snapshotRepositoryUrl.set(uri("https://oss.sonatype.org/content/repositories/releases/"))
+            nexusUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/service/local/"))
+            snapshotRepositoryUrl.set(uri("https://central.sonatype.com/repository/maven-snapshots/"))
             username.set(System.getenv("OSSRH_USERNAME"))
             password.set(System.getenv("OSSRH_PASSWORD"))
         }

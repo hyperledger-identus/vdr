@@ -1,7 +1,7 @@
 package urlManagers
 
 import interfaces.URLManager
-import java.net.URL
+import java.net.URI
 import java.security.PublicKey
 import java.util.Base64
 
@@ -23,7 +23,7 @@ class BaseUrlManager(
         fragment: String?,
         publicKeys: Array<PublicKey>?
     ): String {
-        var finalQueries = queries.toMutableMap()
+        val finalQueries = queries.toMutableMap()
         val pkQueries = publicKeys?.toBase64UrlMap()
         if (pkQueries != null) {
             finalQueries += pkQueries
@@ -44,7 +44,7 @@ class BaseUrlManager(
     }
 
     override fun resolve(url: String): URLManager.URL {
-        val parsedUrl = URL(url)
+        val parsedUrl = URI(url)
 
         val paths = parsedUrl.path.split("/").filter { it.isNotEmpty() }.toTypedArray()
 
@@ -54,7 +54,7 @@ class BaseUrlManager(
             queryPairs[key] = value
         }
 
-        val fragment = parsedUrl.ref
+        val fragment = parsedUrl.fragment
 
         return URLManager.URL(
             paths = paths,

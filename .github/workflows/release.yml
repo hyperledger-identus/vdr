@@ -1,0 +1,45 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to release (e.g., 1.0.0)'
+        required: false
+# TODO: uncomment this when we preprocess the tag properly. We don't want to release with the "v" prefix to maven
+#  push:
+#    tags:
+#      - 'v*'
+
+jobs:
+  publish:
+    name: Publish to Maven Central
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - uses: crazy-max/ghaction-import-gpg@v5
+        id: import_gpg
+        with:
+          gpg_private_key: ${{ secrets.HYP_BOT_GPG_PRIVATE }}
+          passphrase: ${{ secrets.HYP_BOT_GPG_PASSWORD }}
+          git_user_signingkey: true
+          git_commit_gpgsign: true
+          git_config_global: true
+          git_tag_gpgsign: false
+
+      - name: Publish to Maven Central
+        run: ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository -PreleaseVersion=${{ github.event.inputs.tag }}
+        env:
+          OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+          OSSRH_GPG_SECRET_KEY: ${{ secrets.HYP_BOT_GPG_PRIVATE }}
+          OSSRH_GPG_SECRET_KEY_PASSWORD: ${{ secrets.HYP_BOT_GPG_PASSWORD }}
