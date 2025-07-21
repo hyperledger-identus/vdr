@@ -1,4 +1,4 @@
-package demo
+package hyperledger.identus.vdr.prism
 
 import scala.jdk.CollectionConverters.*
 import fmgp.did.method.prism.*
@@ -9,12 +9,18 @@ import interfaces.Driver
 import interfaces.Proof
 import interfaces.Driver.OperationState
 
+class DataCouldNotBeFoundException(reason: Option[String])
+    extends Exception("Could not find the data" + reason.map(s => s" becuase: $s").getOrElse(""))
+class DataNotInitializedException extends Exception("Data wasn't initialized")
+class DataAlreadyDeactivatedException extends Exception("Data was deactivated")
+//class InvalidRequest(reason: String) extends Exception(s"Invalid request because: $reason")
+
 object PRISMDriver {
 
+  // TODO those should come from our configuration file
   val didPrism: DIDPrism = DIDPrism("51d47b13393a7cc5c1afc47099dcbecccf0c8a70828c072ac82f55225b42d4f4")
   val keyName: String = "vdr1"
-
-  val wallet = CardanoWalletConfig(
+  private val wallet = CardanoWalletConfig(
     Seq(
       "mention",
       "side",
@@ -43,10 +49,9 @@ object PRISMDriver {
     )
   )
 
-  private val vdrKey: KMMECSecp256k1PrivateKey =
-    wallet.secp256k1PrivateKey(0, 1)
+  private val vdrKey: KMMECSecp256k1PrivateKey = wallet.secp256k1PrivateKey(0, 1)
 
-  def default = PRISMDriver(
+  def default: PRISMDriver = PRISMDriver(
     bfConfig = BlockfrostConfig(token = "preprod9EGSSMf6oWb81qoi8eW65iWaQuHJ1HwB"),
     wallet = wallet,
     didPrism = didPrism,
@@ -65,10 +70,10 @@ case class PRISMDriver(
     workdir: String = "../../prism-vdr/mainnet"
 ) extends Driver {
   // implement methods here (or use stub for now)
-  def getFamily(): String = "PRISM" //   override val family = "prism"
-  def getIdentifier(): String = "id" //   override val identifier = "id"
-  def getVersion(): String = "1.0" //   override val version = "1.0"
-  def getSupportedVersions(): Array[String] = Array("1.0")
+  def getFamily: String = "PRISM"
+  def getIdentifier: String = "PRISMDriver"
+  def getVersion: String = "1.0"
+  def getSupportedVersions: Array[String] = Array("1.0")
 
   private val genericVDRDriver: GenericVDRDriver =
     GenericVDRDriver(
@@ -78,7 +83,7 @@ case class PRISMDriver(
       didPrism,
       keyName,
       vdrKey,
-      maybeMsgCIP20 = Some("PRISMDriver"),
+      maybeMsgCIP20 = Some(getIdentifier),
     )
 
   genericVDRDriver.initState
@@ -112,7 +117,10 @@ case class PRISMDriver(
       options: java.util.Map[String, ?]
   ): interfaces.Driver.OperationResult = {
     paths.headOption match
-      case None => ??? // interfaces.Driver.OperationResult
+      case None =>
+        throw DataCouldNotBeFoundException(
+          Some("the identifier is missing from the path")
+        ) // interfaces.Driver.OperationResult
       case Some(hash) =>
         val eventRef: RefVDR = RefVDR(hash)
         GenericVDRDriver.runProgram(
@@ -139,7 +147,10 @@ case class PRISMDriver(
       options: java.util.Map[String, ?]
   ): Unit = {
     paths.headOption match
-      case None => ??? // interfaces.Driver.OperationResult
+      case None =>
+        throw DataCouldNotBeFoundException(
+          Some("the identifier is missing from the path")
+        ) // interfaces.Driver.OperationResult
       case Some(hash) =>
         val eventRef: RefVDR = RefVDR(hash)
         GenericVDRDriver.runProgram(
@@ -185,10 +196,10 @@ case class PRISMDriver(
   /** in the case of PRISM this identifier is the HASH of the event */
   override def storeResultState(
       identifier: String
-  ): interfaces.Driver.OperationState = // TODO
-    OperationState.SUCCESS // FIXME
-    // OperationState.RUNNING //FIXME since everything is a synchronous, the driver needs to keep a internal state for this
-    // OperationState.ERROR //FIXME only makes sense when the event submitted is not the latest version or if the submission didn't end up the the blockchain
+  ): interfaces.Driver.OperationState =
+    OperationState.SUCCESS
+    // OperationState.RUNNING //TODO since everything is a synchronous, the driver needs to keep a internal state for this
+    // OperationState.ERROR //TODO only makes sense when the event submitted is not the latest version or if the submission didn't end up the the blockchain
 
   override def verify(
       paths: Array[String],
@@ -208,16 +219,16 @@ case class PRISMDriver(
             case VDR.DataEmpty() => Proof("PrismBlock", Array.empty(), Array.empty()) // TODO proof
             case VDR.DataDeactivated(data) =>
               data match {
-                case VDR.DataEmpty()           => ???
-                case VDR.DataDeactivated(data) => ??? // ERROR
+                case VDR.DataEmpty()           => throw DataNotInitializedException()
+                case VDR.DataDeactivated(data) => throw DataAlreadyDeactivatedException()
                 case VDR.DataByteArray(byteArray) =>
                   Proof(
                     "PrismBlock",
                     byteArray, // Data
                     Array.empty() // TODO proof will is a protobuf Array of PRISM events. Reuse the PrismBlock?
                   )
-                case VDR.DataIPFS(cid)          => ???
-                case VDR.DataStatusList(status) => ???
+                case VDR.DataIPFS(cid)          => ??? // not yet implemented
+                case VDR.DataStatusList(status) => ??? // not yet implemented
               }
             case VDR.DataByteArray(byteArray) =>
               Proof(
@@ -225,16 +236,15 @@ case class PRISMDriver(
                 byteArray, // Data
                 Array.empty() // TODO proof will is a protobuf Array of PRISM events like a PrismBlock?
               )
-            case VDR.DataIPFS(cid)          => ???
-            case VDR.DataStatusList(status) => ???
+            case VDR.DataIPFS(cid)          => ??? // not yet implemented
+            case VDR.DataStatusList(status) => ??? // not yet implemented
           }
         )
   }
 
 }
 
-object App { // ./gradlew run
-  // TODO try with build.sbt https://github.com/JetBrains/sbt-kotlin-plugin
+object DemoPRISMDriver { // ./gradlew run
   def main(args: Array[String]): Unit = {
     println("RUN PRISMDriver")
     println(PRISMDriver.default.getVersion)
