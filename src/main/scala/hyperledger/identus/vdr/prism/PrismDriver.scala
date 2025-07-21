@@ -87,7 +87,7 @@ case class PRISMDriver(
     )
 
   genericVDRDriver.initState
-  // TODO check the status of the SSI and the key
+  // TODO (nice to have) check the status of the SSI and the key (see if it's a valid key)
 
   override def create(
       data: Array[Byte],
@@ -227,8 +227,8 @@ case class PRISMDriver(
                     byteArray, // Data
                     Array.empty() // TODO proof will is a protobuf Array of PRISM events. Reuse the PrismBlock?
                   )
-                case VDR.DataIPFS(cid)          => ??? // not yet implemented
-                case VDR.DataStatusList(status) => ??? // not yet implemented
+                case VDR.DataIPFS(cid)          => ??? // not part of the generic VDR specification
+                case VDR.DataStatusList(status) => ??? // not part of the generic VDR specification
               }
             case VDR.DataByteArray(byteArray) =>
               Proof(
@@ -236,8 +236,8 @@ case class PRISMDriver(
                 byteArray, // Data
                 Array.empty() // TODO proof will is a protobuf Array of PRISM events like a PrismBlock?
               )
-            case VDR.DataIPFS(cid)          => ??? // not yet implemented
-            case VDR.DataStatusList(status) => ??? // not yet implemented
+            case VDR.DataIPFS(cid)          => ??? // not part of the generic VDR specification
+            case VDR.DataStatusList(status) => ??? // not part of the generic VDR specification
           }
         )
   }
