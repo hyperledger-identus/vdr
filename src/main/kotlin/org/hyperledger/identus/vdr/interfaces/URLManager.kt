@@ -1,4 +1,4 @@
-package interfaces
+package org.hyperledger.identus.vdr.interfaces
 
 import java.security.PublicKey
 

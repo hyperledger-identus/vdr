@@ -1,9 +1,9 @@
-package proxy
+package org.hyperledger.identus.vdr.proxy
 
-import interfaces.Driver
-import interfaces.Proof
-import interfaces.URLManager
-import interfaces.VDR
+import org.hyperledger.identus.vdr.interfaces.Driver
+import org.hyperledger.identus.vdr.interfaces.Proof
+import org.hyperledger.identus.vdr.interfaces.URLManager
+import org.hyperledger.identus.vdr.interfaces.VDR
 
 /**
  * VDRProxyMultiDrivers is an implementation of the [VDR] interface that acts as a proxy,

@@ -1,9 +1,12 @@
-import drivers.InMemoryDriver
-import interfaces.Driver
+package org.hyperledger.identus.vdr
+
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.util.UUID
+import kotlin.text.get
+import org.hyperledger.identus.vdr.drivers.InMemoryDriver
+import org.hyperledger.identus.vdr.interfaces.Driver
 
 class InMemoryDriverTest {
 

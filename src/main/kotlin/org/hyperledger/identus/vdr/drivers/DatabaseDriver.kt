@@ -1,7 +1,7 @@
-package drivers
+package org.hyperledger.identus.vdr.drivers
 
-import interfaces.Driver
-import interfaces.Proof
+import org.hyperledger.identus.vdr.interfaces.Driver
+import org.hyperledger.identus.vdr.interfaces.Proof
 import java.security.MessageDigest
 import java.security.PublicKey
 import java.util.Base64
@@ -9,7 +9,7 @@ import java.util.UUID
 import javax.sql.DataSource
 
 /**
- * DatabaseDriver is a JDBC‑backed implementation of the [Driver] interface.
+ * DatabaseDriver is a JDBC‑backed implementation of the [org.hyperledger.identus.vdr.interfaces.Driver] interface.
  * It persists data in a relational database table called `storage`.
  *
  * The table schema is created on first initialisation if it does not yet exist:
