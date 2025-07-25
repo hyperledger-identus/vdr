@@ -1,4 +1,4 @@
-package interfaces
+package org.hyperledger.identus.vdr.interfaces
 
 /**
  * The VDR (Verifiable Data Registry) interface defines a proxy for storing, mutating,

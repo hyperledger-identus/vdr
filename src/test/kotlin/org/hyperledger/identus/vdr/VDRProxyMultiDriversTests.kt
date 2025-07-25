@@ -1,11 +1,13 @@
+package org.hyperledger.identus.vdr
+
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.util.UUID
-import proxy.VDRProxyMultiDrivers
-import drivers.InMemoryDriver
 import org.junit.jupiter.api.assertThrows
-import urlManagers.BaseUrlManager
+import org.hyperledger.identus.vdr.proxy.VDRProxyMultiDrivers
+import org.hyperledger.identus.vdr.drivers.InMemoryDriver
+import org.hyperledger.identus.vdr.urlManagers.BaseUrlManager
 
 class VDRProxyMultiDriversTest {
 

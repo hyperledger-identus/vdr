@@ -1,14 +1,14 @@
-package drivers
+package org.hyperledger.identus.vdr.drivers
 
-import interfaces.Driver
-import interfaces.Proof
+import org.hyperledger.identus.vdr.interfaces.Driver
+import org.hyperledger.identus.vdr.interfaces.Proof
 import java.security.PublicKey
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 
 /**
- * InMemoryDriver is an example implementation of the [Driver] interface.
+ * InMemoryDriver is an example implementation of the [org.hyperledger.identus.vdr.interfaces.Driver] interface.
  * It stores data in a mutable map in memory. This implementation is useful for testing or scenarios
  * where persistent storage is not required.
  *
@@ -53,18 +53,18 @@ class InMemoryDriver(
         fragment: String?,
         options: Map<String, Any>?
     ): Driver.OperationResult {
-        val fragment: String = fragment ?: throw DataCouldNotBeFoundException()
-        if (!storage.contains(fragment)) {
+        val fragmentAux: String = fragment ?: throw DataCouldNotBeFoundException()
+        if (!storage.contains(fragmentAux)) {
             throw DataCouldNotBeFoundException()
         }
-        storage.replace(fragment, data)
+        storage.replace(fragmentAux, data)
 
         return Driver.OperationResult(
             UUID.randomUUID().toString(),
             Driver.OperationState.SUCCESS,
             emptyArray(),
             emptyMap(),
-            fragment,
+            fragmentAux,
             null,
             null
         )
@@ -76,8 +76,8 @@ class InMemoryDriver(
         fragment: String?,
         publicKeys: Array<PublicKey>?
     ): ByteArray {
-        val fragment: String = fragment ?: throw DataCouldNotBeFoundException()
-        return storage[fragment] ?: throw DataCouldNotBeFoundException()
+        val fragmentAux: String = fragment ?: throw DataCouldNotBeFoundException()
+        return storage[fragmentAux] ?: throw DataCouldNotBeFoundException()
     }
 
     override fun delete(
@@ -86,8 +86,8 @@ class InMemoryDriver(
         fragment: String?,
         options: Map<String, Any>?
     ) {
-        val fragment: String = fragment ?: throw DataCouldNotBeFoundException()
-        storage.remove(fragment)
+        val fragmentAux: String = fragment ?: throw DataCouldNotBeFoundException()
+        storage.remove(fragmentAux)
     }
 
     override fun verify(paths: Array<String>,

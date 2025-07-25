@@ -1,7 +1,8 @@
+package org.hyperledger.identus.vdr
+
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import urlManagers.BaseUrlManager
-import kotlin.test.assertSame
+import org.hyperledger.identus.vdr.urlManagers.BaseUrlManager
 
 class BaseUrlManagerTest {
 

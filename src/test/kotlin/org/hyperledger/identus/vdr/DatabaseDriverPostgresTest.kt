@@ -1,12 +1,13 @@
+package org.hyperledger.identus.vdr
+
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import drivers.DatabaseDriver
-import interfaces.Driver
 import org.junit.jupiter.api.*
 import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
-import java.util.UUID
+import org.hyperledger.identus.vdr.drivers.DatabaseDriver
+import org.hyperledger.identus.vdr.interfaces.Driver
 
 @Testcontainers
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)

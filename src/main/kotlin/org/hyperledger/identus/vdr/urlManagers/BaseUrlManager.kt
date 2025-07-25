@@ -1,9 +1,9 @@
-package urlManagers
+package org.hyperledger.identus.vdr.urlManagers
 
-import interfaces.URLManager
 import java.net.URI
 import java.security.PublicKey
 import java.util.Base64
+import org.hyperledger.identus.vdr.interfaces.URLManager
 
 /**
  * LocalhostUrlManager is an example implementation of the [URLManager] interface.

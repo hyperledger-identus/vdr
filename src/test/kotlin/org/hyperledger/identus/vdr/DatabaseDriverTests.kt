@@ -1,9 +1,11 @@
+package org.hyperledger.identus.vdr
+
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import drivers.DatabaseDriver
-import interfaces.Driver
 import org.junit.jupiter.api.*
 import java.util.UUID
+import org.hyperledger.identus.vdr.drivers.DatabaseDriver
+import org.hyperledger.identus.vdr.interfaces.Driver
 
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 class DatabaseDriverHikariTest {

@@ -1,4 +1,4 @@
-package interfaces
+package org.hyperledger.identus.vdr.interfaces
 
 data class Proof(
     val type: String,
