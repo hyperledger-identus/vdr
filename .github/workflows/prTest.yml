@@ -1,0 +1,31 @@
+name: PR UnitTests
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  workflow_dispatch:
+  pull_request:
+
+jobs:
+  test:
+    name: Publish to Maven Central
+    runs-on: ubunto-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Mock Build
+        run: sleep 300
+
+  mockJob:
+    name: Mocked Job
+    runs-on: ubunto-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Mock job
+        run: sleep 120
