@@ -5,27 +5,30 @@ concurrency:
   cancel-in-progress: true
 
 on:
+  merge_group:
+    types:
+      - checks_requested
   workflow_dispatch:
   pull_request:
 
 jobs:
   test:
-    name: Publish to Maven Central
-    runs-on: ubunto-latest
+    name: Mocked tests
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Mock Build
-        run: sleep 300
+        run: sleep 60
 
   mockJob:
     name: Mocked Job
-    runs-on: ubunto-latest
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Mock job
-        run: sleep 120
+        run: sleep 40
