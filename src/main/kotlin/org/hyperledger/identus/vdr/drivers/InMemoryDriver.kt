@@ -90,11 +90,12 @@ class InMemoryDriver(
         storage.remove(fragmentAux)
     }
 
-    override fun verify(paths: Array<String>,
-               queries: Map<String, String>,
-               fragment: String?,
-               publicKeys: Array<PublicKey>?,
-               returnData: Boolean
+    override fun verify(
+        paths: Array<String>,
+        queries: Map<String, String>,
+        fragment: String?,
+        publicKeys: Array<PublicKey>?,
+        returnData: Boolean
     ): Proof {
         val dataRead = read(paths, queries, fragment, publicKeys)
         val sendData = if (returnData) { dataRead } else { null }

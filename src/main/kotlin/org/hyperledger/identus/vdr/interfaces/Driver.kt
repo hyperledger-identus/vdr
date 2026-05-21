@@ -132,11 +132,12 @@ interface Driver {
      * @param returnData Optional flag indicating if the stored data should also be returned.
      * @return A [Proof] object containing the type, cryptographic proof, and optionally the data.
      */
-    fun verify(paths: Array<String>,
-               queries: Map<String, String>,
-               fragment: String?,
-               publicKeys: Array<PublicKey>?,
-               returnData: Boolean = false
+    fun verify(
+        paths: Array<String>,
+        queries: Map<String, String>,
+        fragment: String?,
+        publicKeys: Array<PublicKey>?,
+        returnData: Boolean = false
     ): Proof
 
     /**

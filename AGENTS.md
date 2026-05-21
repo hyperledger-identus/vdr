@@ -44,9 +44,11 @@ Driver family concept: Drivers in the same family share URL interpretation and d
 JUnit 5 (`useJUnitPlatform()` in `build.gradle.kts`).
 
 **Unit tests** use H2 in-memory database via HikariCP:
+
 - `DatabaseDriverHikariTest` — connects to `jdbc:h2:mem:test-<uuid>`, no Docker needed
 
 **Integration tests** use PostgreSQL via Testcontainers:
+
 - `DatabaseDriverPostgresTest` — spins up `postgres:16-alpine` container, requires **Docker running**
 - Uses HikariCP for connection pooling to the containerized PostgreSQL
 
@@ -55,9 +57,11 @@ Other test classes: `InMemoryDriverTest`, `BaseUrlManagerTests`, `VDRProxyMultiD
 ## Publishing
 
 `release.yml` is a manual workflow dispatch. Publishes to Maven Central via Sonatype staging:
+
 ```bash
 ./gradlew publishToSonatype closeAndReleaseSonatypeStagingRepository -PreleaseVersion=<version>
 ```
+
 Required GitHub secrets and their env-var mappings:
 
 | GitHub Secret | Env Var (Gradle) |
