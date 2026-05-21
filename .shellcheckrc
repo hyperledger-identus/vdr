@@ -1,0 +1,2 @@
+# Generated gradlew uses POSIX-incompatible ulimit and unused vars
+disable=SC2034,SC3045
