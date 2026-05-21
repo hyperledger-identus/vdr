@@ -118,6 +118,7 @@ graph LR
     B -->|Provides verifiable URL and cryptographic proof| D
     D -->|Uses embedded metadata hash and signature for verification| B
 ```
+
 This diagram illustrates the core relationships among the actors within the VDR system.
 The **Issuer** generates and publishes data along with the required metadata—attaching either a cryptographic hash for immutable data or a digital signature for mutable data—via the VDR Interface.
 The **VDR System** then stores this data and issues verifiable URLs that encapsulate the necessary metadata and proofs.
@@ -219,7 +220,6 @@ By handling the proof mechanism, the Driver ensures that clients can independent
 - **Mutable Data Handling**: It is the responsibility of the Driver to manage and resolve data that has been mutated. This includes determining how to locate and retrieve updated versions of the data when a URL points to data that has changed.
 - **Driver Family**: Drivers within the same family share common standards for URL interpretation and data handling. This ensures that the same URL can be correctly processed by any Driver in the family, thereby retrieving consistent data across different implementations.
 
-
 **Driver Family:**
 
 An important concept within the VDR system is that of a Driver Family.
@@ -307,15 +307,22 @@ Overall, the dual approach to proof generation—simple hashes for immutable dat
 
 1. **Client Request**: The client sends data and associated metadata to the VDR Interface. If `m` is included in metadata and its `true`, it signifies that the data **may** be mutable.
 2. **Driver Selection**:
+
 - The VDR checks if a single or multiple Drivers are available.
 - If multiple Drivers exist, the VDR selects the appropriate one based on provided metadata (e.g., driver identifier, family, version).
+
 3. **Data Storage**:
+
 - The selected Driver stores the data.
 - The Driver returns a `OperationResult` with details such as storage paths, query parameters, fragment, and the operation state.
+
 4. **URL Construction**:
+
 - The VDR Interface passes the `OperationResult` to the URL Manager.
 - The URL Manager constructs a URL that embeds the necessary metadata using standard URL query parameters (e.g., `did`, `df`, `dv`, and either `h` for immutable data or `s` for mutable data).
+
 5. **Response**:
+
 - The constructed URL is returned to the client as a reference for retrieving or mutating the stored data.
 
 Below is a sequence diagram illustrating the interactions between components for a typical data storage operation.
@@ -340,13 +347,20 @@ sequenceDiagram
 
 1. **Client Request**: The client sends a retrieval request to the VDR Interface, providing the URL of the stored data.
 2. **URL Resolution**:
+
 - The VDR uses the URL Manager to resolve the URL into its components (paths, queries, fragment, and any public keys).
+
 3. **Driver Selection**:
+
 - The metadata (e.g., driver identifier) extracted from the URL helps the VDR select the appropriate Driver.
+
 4. **Data Retrieval**:
+
 - The VDR calls the `read` method of the selected Driver, passing along the resolved URL components.
 - The Driver returns the stored data as a byte array.
+
 5. **Response**:
+
 - The data is returned to the client.
 
 ```mermaid
@@ -381,7 +395,7 @@ There are several ways the VDR read interface can be exposed, for example:
 
 When the VDR returns URL scheme is `vdr://`, it indicates that the data can be resolved by any instance of the VDR interface, and the resolved data should be consistent across all VDR instances as long as the same driver is supported by that instance.
 This is useful for referencing data stored behind decentralized storage systems, such as IPFS or blockchain.
-Unlike HTTP or other traditional RPC protocols, this removes the need to hard-code the remote location (e.g., hostname, IP address), which is more suitable for some storage types. 
+Unlike HTTP or other traditional RPC protocols, this removes the need to hard-code the remote location (e.g., hostname, IP address), which is more suitable for some storage types.
 
 For example, an issuer creates a credential schema using the IPFS driver, with the URL `vdr://?drf=ipfs&...`.
 The verifier then uses this URL to resolve the schema on his own VDR instance with the IPFS driver. This means the verifier can
@@ -394,6 +408,7 @@ Either way, the resource returned by the VDR should be the same.
 ### 6.3.3 Updating and Deleting Data
 
 For **update** and **delete** operations, the process is similar to read:
+
 - The VDR Interface uses the URL Manager to resolve the URL.
 - It selects the appropriate Driver based on the URL metadata.
 - The selected Driver performs the `update` or `delete` operation.
@@ -476,35 +491,43 @@ Future versions of the specification will move this registry to a dedicated docu
 #### Examples of URLs
 
 1. **Immutable Data HTTP URL**
+
 - **Example URL:** `http://example.io?drf=cardano&drid=cardanoNode&drv=1.0&m=0`
 
 2. **Example 2: DID URL with Additional Custom Queries**
+
 - **Description:**  
   Similar to the first example, but as a DID URL and in addition to the basic metadata, two custom driver queries are included: one for block slot (`bs`) and one for block hash (`bh`).
 - **Example URL:** `did:method:abcteads123?drf=cardano&drid=cardanoNode&drv=1.0&h=asdasdasdasdsasa&m=0&bs=100000&bh=asdasdasdassad`
 
 3. **Example 3: FTP URL with Transaction Hash**
+
 - **Description:**  
   In this case, the data is still immutable and validated by a hash, but a custom query for the transaction hash (`bt`) is provided to help locate the data within a blockchain transaction.
 - **Example URL:** `ftp://?drf=cardano&drid=cardanoNode&drv=1.0&h=asdasdasdasdsasa&m=0&bt=adsadadasdasdaasdsasadas`
 
 4. **Example 4: DID URL for Mutable Data with Digital Signature**
+
 - **Description:**  
   Here, the data is mutable. Instead of a hash, a digital signature (`s`) is used to verify data integrity. The proof type (`pt`) is specified (e.g., `ECDSAwithSHA256`), and the mutable flag (`m`) is set to true.
 - **Example URL:** `did:method:abcteads123?drf=cardano&drid=cardanoNode&drv=1.0&s=sadasdsadasdsad&pt=ECDSAwithSHA256&m=1`
 - **In the event the data is updated:** The digital signature (`s`) will fail, and the Holder/Verifier will be required to request the proof from the VDR.
 
 5. **Example 5: DID URL with Multiple Services**
+
 - **Description:**  
   This example demonstrates a DID URL for a record with multiple services. In addition to the standard driver metadata, it includes a `service` parameter and a `relativeRef` parameter as defined by the W3C DID specification (Section 3.2.1 DID Parameters). The mutable flag (`m`) is set to true.
 - **Example URL:** `did:method:abcteads123?drf=cardano&drid=cardanoNode&drv=1.0&service=agent&relativeRef='/read?retrieveData=true'&m=1`
 -
+
 6. **Example 6: HTTP URL with Custom Path**
+
 - **Description:**  
   This example demonstrates an HTTP URL with custom Paths. Note that the custom paths are after the driver version.
 - **Example URL:** `http://example.io/cardano/cardanoNode/1.0/record/1?h=asdasdasdasdsasa&m=0`
 
 7. **Example 7: VDR URL**
+
 - **Description:**
   This example demonstrates a VDR URL. This URL can be used to resolve data on any VDR instance.
 - **Example URL:** `vdr://?drf=cardano&drid=cardanoNode&drv=1.0&m=0`
@@ -620,7 +643,7 @@ The subsequent milestone aims to expand the system's versatility by integrating 
 - **Cloud-Agent Enhancement:**  
   Extend the cloud-agent integration to support the Cardano Blockchain Driver. This will enable multi-party verification and trustless data sharing by leveraging the inherent security and decentralization of the blockchain.
 
-These milestones represent significant steps toward a fully functional and extensible VDR system that supports a variety of storage backends and integrates seamlessly with decentralized agent architectures.
+These milestones represent significant steps toward a fully functional and extensible VDR system that supports a variety of storage backends and integrates seamlessly with decentralized agent architectures
 ---
 
 ## 10. Security Considerations
@@ -663,6 +686,7 @@ This specification registers the following URI scheme in the IANA
 "Uniform Resource Identifier (URI) Schemes" registry [IANA.URI.Schemes](https://www.iana.org/assignments/uri-schemes/uri-schemes.xhtml).
 
 ### A.1.1. vdr
+
 __URI Scheme__: `vdr`  
 __Description__: Custom scheme used for referencing and resolving VDR entry  
 __Status__: Provisional  
