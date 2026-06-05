@@ -605,13 +605,27 @@ The responsibility of generating, maintaining, and providing these proofs lies w
 Both Drivers and URL Managers are responsible for error handling. This includes:
 
 - **Drivers**:
-    - Handling exceptions such as data not found or mutation errors.
-    - Returning clear operational states via the `OperationResult`.
+    - For **create** (and async flows), returning clear operational states via `OperationResult`.
+    - For **read**, **update**, and **delete**, signaling failures by throwing exceptions (see
+      [`DriverExceptions`](src/main/kotlin/org/hyperledger/identus/vdr/interfaces/DriverExceptions.kt)
+      and KDoc on [`Driver`](src/main/kotlin/org/hyperledger/identus/vdr/interfaces/Driver.kt)).
 - **URL Managers**:
     - Validating URL structure and content.
     - Raising errors if URLs do not conform to expected formats or lack required metadata.
 
 The VDR interface relies on these components to signal errors and propagate meaningful exceptions to the client.
+
+### 8.1 Driver read / update / delete exceptions
+
+| Driver | Exception | When thrown |
+| --- | --- | --- |
+| `DatabaseDriver` / `InMemoryDriver` | `DataCouldNotBeFoundException` | Missing fragment, unknown id, or update/delete affected zero rows |
+| [PRISM VDR driver](https://github.com/hyperledger-identus/prism-vdr-driver) | `DataCouldNotBeFoundException` | Missing path identifier |
+| PRISM VDR driver | `DataNotInitializedException` | On-chain entry exists but payload is empty (`DataEmpty`) |
+| PRISM VDR driver | `DataAlreadyDeactivatedException` | Entry was deactivated |
+| PRISM VDR driver | `DataOfUnexpectedTypeException` | Payload type unsupported for the requested operation |
+
+HTTP bindings can map these exceptions to appropriate status codes (for example, 404 for not found or deactivated).
 
 ---
 

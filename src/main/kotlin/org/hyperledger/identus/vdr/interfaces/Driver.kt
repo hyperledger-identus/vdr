@@ -79,6 +79,10 @@ interface Driver {
      * @param fragment An optional URL fragment.
      * @param options Optional metadata for the operation.
      * @return A [OperationResult] containing the details and state of the mutation operation.
+     * @throws Exception when the target entry cannot be resolved or updated. Built-in drivers throw
+     *   [org.hyperledger.identus.vdr.drivers.DatabaseDriver.DataCouldNotBeFoundException] (or the
+     *   equivalent on [org.hyperledger.identus.vdr.drivers.InMemoryDriver]) when the fragment is
+     *   missing or no matching record exists. See [DriverExceptions] for the full contract.
      */
     fun update(
         data: ByteArray,
@@ -96,6 +100,12 @@ interface Driver {
      * @param fragment An optional URL fragment.
      * @param publicKeys An optional array of public keys to verify or decrypt the data.
      * @return The stored data as a [ByteArray].
+     * @throws Exception when the entry cannot be read. Built-in drivers throw
+     *   [org.hyperledger.identus.vdr.drivers.DatabaseDriver.DataCouldNotBeFoundException] (or the
+     *   equivalent on [org.hyperledger.identus.vdr.drivers.InMemoryDriver]) when the fragment is
+     *   missing or no record exists. The PRISM driver additionally throws
+     *   `DataNotInitializedException` and `DataAlreadyDeactivatedException` to distinguish empty
+     *   versus deactivated on-chain state. See [DriverExceptions] for the full contract.
      */
     fun read(
         paths: Array<String>,
@@ -111,6 +121,10 @@ interface Driver {
      * @param queries A map of query parameters.
      * @param fragment An optional URL fragment.
      * @param options Optional metadata for the removal operation.
+     * @throws Exception when the target entry cannot be resolved or removed. Built-in drivers throw
+     *   [org.hyperledger.identus.vdr.drivers.DatabaseDriver.DataCouldNotBeFoundException] (or the
+     *   equivalent on [org.hyperledger.identus.vdr.drivers.InMemoryDriver]) when the fragment is
+     *   missing or no matching record exists. See [DriverExceptions] for the full contract.
      */
     fun delete(
         paths: Array<String>,
